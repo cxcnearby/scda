@@ -1,0 +1,157 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile-simdata_multi",
+            "type": "shell",
+            "command":"g++",
+            "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}.exe",
+                "-pthread",
+                "-std=c++11",
+                "-m64",
+                "-I/home/changxc/software/root/include",
+                "-L/home/changxc/software/root/lib",
+                "-lCore",
+                "-lImt",
+                "-lRIO",
+                "-lNet",
+                "-lHist",
+                "-lGraf",
+                "-lGraf3d",
+                "-lGpad",
+                "-lROOTDataFrame",
+                "-lROOTVecOps",
+                "-lTree",
+                "-lTreePlayer",
+                "-lRint",
+                "-lPostscript",
+                "-lMatrix",
+                "-lPhysics",
+                "-lMathCore",
+                "-lThread",
+                "-lMultiProc",
+                "-pthread",
+                "-lm",
+                "-ldl",
+                "-rdynamic",
+                "-lMinuit"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Compile-calc_nzeac",
+            "command":"g++",
+            "args":[
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}.exe",
+                "-g",
+                "-Wall",
+                "-std=c++11"
+            ],
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher":"$gcc"
+        },
+        {
+            "label": "Compile-co_self",
+            "type": "shell",
+            "command":"g++",
+            "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}.exe",
+                "-pthread",
+                "-std=c++11",
+                "-m64",
+                "-I/home/changxc/software/root/include",
+                "-L/home/changxc/software/root/lib",
+                "-lCore",
+                "-lImt",
+                "-lRIO",
+                "-lNet",
+                "-lHist",
+                "-lGraf",
+                "-lGraf3d",
+                "-lGpad",
+                "-lROOTDataFrame",
+                "-lROOTVecOps",
+                "-lTree",
+                "-lTreePlayer",
+                "-lRint",
+                "-lPostscript",
+                "-lMatrix",
+                "-lPhysics",
+                "-lMathCore",
+                "-lThread",
+                "-lMultiProc",
+                "-pthread",
+                "-lm",
+                "-ldl",
+                "-rdynamic",
+                "-lMinuit"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Compile-ana",
+            "type": "shell",
+            "command":"g++",
+            "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}.exe",
+                "-pthread",
+                "-std=c++11",
+                "-m64",
+                "-I/home/changxc/software/root/include",
+                "-L/home/changxc/software/root/lib",
+                "-lCore",
+                "-lImt",
+                "-lRIO",
+                "-lNet",
+                "-lHist",
+                "-lGraf",
+                "-lGraf3d",
+                "-lGpad",
+                "-lROOTDataFrame",
+                "-lROOTVecOps",
+                "-lTree",
+                "-lTreePlayer",
+                "-lRint",
+                "-lPostscript",
+                "-lMatrix",
+                "-lPhysics",
+                "-lMathCore",
+                "-lThread",
+                "-lMultiProc",
+                "-pthread",
+                "-lm",
+                "-ldl",
+                "-rdynamic",
+                "-lMinuit"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
