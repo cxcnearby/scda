@@ -111,9 +111,9 @@ wcdaevent::wcdaevent(TTree *tree) : fChain(0){
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
   if(tree == 0){
-    TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/workfs/ybj/liuwei/event_time/data/ES.10001.WCDAEvent.20190215005726.007.root");
+    TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/home/changxc/mywork/code/repo/scda/data/ES.10001.WCDAEvent.20190215005726.007.root");
     if(!f || !f->IsOpen()){
-      f = new TFile("/workfs/ybj/liuwei/event_time/data/ES.10001.WCDAEvent.20190215005726.007.root");
+      f = new TFile("/home/changxc/mywork/code/repo/scda/data/ES.10001.WCDAEvent.20190215005726.007.root");
     }
     f->GetObject("wcda",tree);
   }
