@@ -5,14 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) Launch-ana",
+            "name": "(gdb) Launch-test",
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}.exe",
             "args": [
-                "test",
-                "3",
-                "0"
+                "> test${fileBasenameNoExtension}out"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -27,7 +25,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "Compile-ana"
+            "preLaunchTask": "Compile"
         },
         {
             "name": "(gdb) Launch-co_self",
