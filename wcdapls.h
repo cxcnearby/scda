@@ -8,9 +8,9 @@
 #ifndef wcdapls_h
 #define wcdapls_h
 
-#include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TROOT.h>
 
 // Header file for the classes stored in the TTree if any.
 #include <TObject.h>
@@ -18,125 +18,130 @@
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
 class wcdapls {
- public :
-  TTree          *fChain;   //!pointer to the analyzed TTree or TChain
-  Int_t           fCurrent; //!current Tree number in a TChain
-  
+public:
+  TTree *fChain;  //! pointer to the analyzed TTree or TChain
+  Int_t fCurrent; //! current Tree number in a TChain
+
   // Declaration of leaf types
-  //WCDAPLSHit      *Event;
-  UInt_t          fUniqueID;
-  UInt_t          fBits;
-  UInt_t          fee;
-  UInt_t          flag;
-  UInt_t          bdb;
-  UInt_t          db;
-  UInt_t          pmt;
-  ULong_t         time;
-  UInt_t          second;
-  UInt_t          ns;
-  UInt_t          anode_peak;
-  UInt_t          anode_ped;
-  UInt_t          anode_time;
-  UInt_t          dynode_peak;
-  UInt_t          dynode_ped;
-  UInt_t          dynode_time;
-  UInt_t          tail;
-  UInt_t          l1id;
-  Int_t           dt;
-  
+  // WCDAPLSHit      *Event;
+  UInt_t fUniqueID;
+  UInt_t fBits;
+  UInt_t fee;
+  UInt_t flag;
+  UInt_t bdb;
+  UInt_t db;
+  UInt_t pmt;
+  ULong_t time;
+  UInt_t second;
+  UInt_t ns;
+  UInt_t anode_peak;
+  UInt_t anode_ped;
+  UInt_t anode_time;
+  UInt_t dynode_peak;
+  UInt_t dynode_ped;
+  UInt_t dynode_time;
+  UInt_t tail;
+  UInt_t l1id;
+  Int_t dt;
+
   // List of branches
-  TBranch        *b_Event_fUniqueID;   //!
-  TBranch        *b_Event_fBits;   //!
-  TBranch        *b_Event_fee;   //!
-  TBranch        *b_Event_flag;   //!
-  TBranch        *b_Event_bdb;   //!
-  TBranch        *b_Event_db;   //!
-  TBranch        *b_Event_pmt;   //!
-  TBranch        *b_Event_time;   //!
-  TBranch        *b_Event_second;   //!
-  TBranch        *b_Event_ns;   //!
-  TBranch        *b_Event_anode_peak;   //!
-  TBranch        *b_Event_anode_ped;   //!
-  TBranch        *b_Event_anode_time;   //!
-  TBranch        *b_Event_dynode_peak;   //!
-  TBranch        *b_Event_dynode_ped;   //!
-  TBranch        *b_Event_dynode_time;   //!
-  TBranch        *b_Event_tail;   //!
-  TBranch        *b_Event_l1id;   //!
-  TBranch        *b_Event_dt;   //!
-  
-  wcdapls(TTree *tree=0);
+  TBranch *b_Event_fUniqueID;   //!
+  TBranch *b_Event_fBits;       //!
+  TBranch *b_Event_fee;         //!
+  TBranch *b_Event_flag;        //!
+  TBranch *b_Event_bdb;         //!
+  TBranch *b_Event_db;          //!
+  TBranch *b_Event_pmt;         //!
+  TBranch *b_Event_time;        //!
+  TBranch *b_Event_second;      //!
+  TBranch *b_Event_ns;          //!
+  TBranch *b_Event_anode_peak;  //!
+  TBranch *b_Event_anode_ped;   //!
+  TBranch *b_Event_anode_time;  //!
+  TBranch *b_Event_dynode_peak; //!
+  TBranch *b_Event_dynode_ped;  //!
+  TBranch *b_Event_dynode_time; //!
+  TBranch *b_Event_tail;        //!
+  TBranch *b_Event_l1id;        //!
+  TBranch *b_Event_dt;          //!
+
+  wcdapls(TTree *tree = 0);
   wcdapls(const string path, const string file);
 
   virtual ~wcdapls();
-  virtual Int_t    Cut(Long64_t entry);
-  virtual Int_t    GetEntry(Long64_t entry);
+  virtual Int_t Cut(Long64_t entry);
+  virtual Int_t GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TTree *tree);
-  virtual void     Loop();
-  virtual Bool_t   Notify();
-  virtual void     Show(Long64_t entry = -1);
+  virtual void Init(TTree *tree);
+  virtual void Loop();
+  virtual Bool_t Notify();
+  virtual void Show(Long64_t entry = -1);
 };
 #endif
 
 #ifdef wcdapls_cxx
-wcdapls::wcdapls(TTree *tree) : fChain(0){
+wcdapls::wcdapls(TTree *tree) : fChain(0) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
-  if(tree == 0){
-    TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/home/changxc/mywork/code/repo/scda/data/ES.10003.TimedFrag.20190215004023.007.dat.root");
-    if(!f || !f->IsOpen()){
-      f = new TFile("/home/changxc/mywork/code/repo/scda/data/ES.10003.TimedFrag.20190215004023.007.dat.root");
+  if (tree == 0) {
+    TFile *f = (TFile *)gROOT->GetListOfFiles()->FindObject(
+        "/home/changxc/mywork/code/repo/scda/data/"
+        "ES.10003.TimedFrag.20190215004023.007.dat.root");
+    if (!f || !f->IsOpen()) {
+      f = new TFile("/home/changxc/mywork/code/repo/scda/data/"
+                    "ES.10003.TimedFrag.20190215004023.007.dat.root");
     }
-    f->GetObject("wcdapls",tree);
+    f->GetObject("wcdapls", tree);
   }
 
   Init(tree);
 }
 
-wcdapls::wcdapls(const string path, const string file) : fChain(0){
+wcdapls::wcdapls(const string path, const string file) : fChain(0) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
-  string fpath = path +"/" +file;
+  string fpath = path + "/" + file;
   TTree *tree;
 
-  TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(fpath.c_str() );
-  if(!f || !f->IsOpen() ){
-    f = new TFile(fpath.c_str() );
+  TFile *f = (TFile *)gROOT->GetListOfFiles()->FindObject(fpath.c_str());
+  if (!f || !f->IsOpen()) {
+    f = new TFile(fpath.c_str());
   }
-  f->GetObject("wcdapls",tree);
+  f->GetObject("wcdapls", tree);
 
   Init(tree);
 }
 
-
-
-wcdapls::~wcdapls(){
-  if (!fChain) return;
+wcdapls::~wcdapls() {
+  if (!fChain)
+    return;
   delete fChain->GetCurrentFile();
 }
 
-Int_t wcdapls::GetEntry(Long64_t entry){
+Int_t wcdapls::GetEntry(Long64_t entry) {
   // Read contents of entry.
-  if (!fChain) return 0;
-  
+  if (!fChain)
+    return 0;
+
   return fChain->GetEntry(entry);
 }
 
-Long64_t wcdapls::LoadTree(Long64_t entry){
+Long64_t wcdapls::LoadTree(Long64_t entry) {
   // Set the environment to read one entry
-  if(!fChain) return -5;
+  if (!fChain)
+    return -5;
   Long64_t centry = fChain->LoadTree(entry);
-  if(centry < 0) return centry;
-  if(fChain->GetTreeNumber() != fCurrent){
+  if (centry < 0)
+    return centry;
+  if (fChain->GetTreeNumber() != fCurrent) {
     fCurrent = fChain->GetTreeNumber();
     Notify();
   }
-   
+
   return centry;
 }
 
-void wcdapls::Init(TTree *tree){
+void wcdapls::Init(TTree *tree) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
@@ -144,13 +149,14 @@ void wcdapls::Init(TTree *tree){
   // code, but the routine can be extended by the user if needed.
   // Init() will be called many times when running on PROOF
   // (once per file to be processed).
-  
+
   // Set branch addresses and branch pointers
-  if (!tree) return;
+  if (!tree)
+    return;
   fChain = tree;
   fCurrent = -1;
   fChain->SetMakeClass(1);
-  
+
   fChain->SetBranchAddress("fUniqueID", &fUniqueID, &b_Event_fUniqueID);
   fChain->SetBranchAddress("fBits", &fBits, &b_Event_fBits);
   fChain->SetBranchAddress("fee", &fee, &b_Event_fee);
@@ -174,7 +180,7 @@ void wcdapls::Init(TTree *tree){
   Notify();
 }
 
-Bool_t wcdapls::Notify(){
+Bool_t wcdapls::Notify() {
   // The Notify() function is called when a new file is opened. This
   // can be either for a new TTree in a TChain or when when a new TTree
   // is started when using PROOF. It is normally not necessary to make changes
@@ -184,14 +190,15 @@ Bool_t wcdapls::Notify(){
   return kTRUE;
 }
 
-void wcdapls::Show(Long64_t entry){
+void wcdapls::Show(Long64_t entry) {
   // Print contents of entry.
   // If entry is not specified, print current entry
-  if (!fChain) return;
+  if (!fChain)
+    return;
   fChain->Show(entry);
 }
 
-Int_t wcdapls::Cut(Long64_t entry){
+Int_t wcdapls::Cut(Long64_t entry) {
   // This function may be called from Loop.
   // returns  1 if entry is accepted.
   // returns -1 otherwise.
