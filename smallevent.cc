@@ -27,12 +27,13 @@
 #include "wcdapls.h"
 
 #include "definition.h"
-#include "std_lib_facilities.h"
+//#include "std_lib_facilities.h"
 
 using namespace std;
 
 double smpmtx_jd[26][4][17];
 double smpmty_jd[26][4][17];
+int smpmtig_jd[26][4][17];
 std::vector<int> smevt;
 std::vector<long> sectime;
 std::vector<long> smtime;
@@ -109,9 +110,9 @@ void wcdapls::Loop() {
 
       bigevent.push_back(bevt_);
     }
-  } else
-    error("can't open data file : ",
-          fname.str()); // file is implicitly closed when leaving the function.
+  } else{}
+//    error("can't open data file : ",
+//          fname.str()); // file is implicitly closed when leaving the function.
   rf.close();
 
 #if 0
