@@ -10,7 +10,10 @@
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}.exe",
             "args": [
-                "> test${fileBasenameNoExtension}out"
+                "/home/changxc/mywork/code/repo/scda/data",
+                "ES.10001.WCDAEvent.20190215005726.007.root",
+                "/home/changxc/mywork/code/repo/scda/data",
+                "ES.10003.TimedFrag.20190215004023.007.dat.root"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
