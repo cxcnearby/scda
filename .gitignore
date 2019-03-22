@@ -35,3 +35,4 @@ data/
 test*
 output/
 .vscode/ipch/
+*.dat
