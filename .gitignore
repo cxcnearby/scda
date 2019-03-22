@@ -36,3 +36,4 @@ test*
 output/
 .vscode/ipch/
 *.dat
+*.txt
