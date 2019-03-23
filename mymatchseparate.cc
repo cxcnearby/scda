@@ -86,7 +86,7 @@ void wcdaevent::Loop() {
       }
     }
   }
-cout<<b_tot<<endl;//TODO
+  cout << b_tot << endl; // TODO
   outselect.close();
 }
 
@@ -103,6 +103,12 @@ void wcdapls::Loop() {
 
   ULong64_t stamp[901] = {0}; // save the latest event position in each igcell.
   Long64_t timewin = 4000;    // half width of the matching time window. (ns)
+  Long64_t discardtime =
+      6500; //  > discardtime means discard. 6500 = timewin + 2500, 2500 is an
+            //  upper bound of the time gap that the last hit time subtract the
+            //  corresponding event time.
+  Long64_t disentry = -1; //  the entry to be discarded of big events.
+  int ifinitentry;        //  ifinitentry ==1
 
   ifstream inselect;
   inselect.open("big_event_selected.dat");
@@ -140,11 +146,17 @@ void wcdapls::Loop() {
     return;
 
   Long64_t nentries = fChain->GetEntriesFast();
+  LoadTree(nentries - 1);
+  fChain->GetEntry(nentries - 1);
+  Long64_t time_s_end = (second + 1) * 1000000000LL + ns * 20LL;
 
   Long64_t nbytes = 0, nb = 0;
   while (inselect >> b_tot >> b_entry >> b_evt >> b_igcell >> b_x >> b_y >>
          b_fee_b >> b_ch >> b_anode_b >> b_dynode_b >> b_time_b) {
-cout<<b_tot<<endl;//TODO
+    // if ((b_tot % 10000) == 0) //FIXME
+      cout << b_tot << "\r" << flush; // TODO
+    if (b_entry == disentry)
+      continue;
     for (Long64_t jentry = stamp[b_igcell]; jentry < nentries; jentry++) {
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0)
@@ -154,19 +166,24 @@ cout<<b_tot<<endl;//TODO
       // if (Cut(ientry) < 0) continue;
       b_time_s = (second + 1) * 1000000000LL + ns * 20LL;
       b_time_diff = b_time_s - b_time_b;
-      if (b_time_diff < -timewin)
-        continue;
+      // if ()
+        if (b_time_diff < -timewin)
+          continue;
       if (b_time_diff > timewin) {
         stamp[b_igcell] = jentry;
+        // to check if we should discard the whole entry.
+        if ((b_time_s - b_evt) > discardtime)
+          disentry = b_entry; //FIXME
         break;
       }
       if (b_igcell == smpmtig_jd[fee][db][pmt]) {
         b_anode_s = anode_peak - anode_ped;
         b_dynode_s = dynode_peak - dynode_ped;
-        t_match->Fill();
+        if (b_anode_s > 0)
+          t_match->Fill();
       }
     }
-//       break;
+    //       break;
   }
   inselect.close();
   f_matchevents->Write();
