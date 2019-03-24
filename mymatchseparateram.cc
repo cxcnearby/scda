@@ -47,8 +47,8 @@ void wcdaevent::Loop() {
   Int_t b_igcell, b_fee_b, b_ch, b_anode_b, b_dynode_b;
   Float_t b_x, b_y;
   Long64_t b_entry, b_tot, b_time_b;
-  Long64_t b_evt; // big pmt
-  int th_dynode = 100; // threshold of big selection. 
+  Long64_t b_evt;      // big pmt
+  int th_dynode = 500; // threshold of big selection.
 
   ofstream outselect;
   outselect.open("big_event_selectedram.dat");
@@ -86,7 +86,9 @@ void wcdaevent::Loop() {
       b_time_b = hits_low_th_fine_time[ihit] * 0.333 +
                  hits_coarse_time[ihit] * 16. +
                  hits_second[ihit] * 1000000000LL;
-      if (b_dynode_b > th_dynode) {
+      if (b_dynode_b > th_dynode &&
+          (1||b_igcell == 486 || b_igcell == 487 || b_igcell == 488)) {
+            //TODO
         b_tot++;
         outselect << b_tot << " " << b_entry << " " << b_evt << " " << b_igcell
                   << " " << b_x << " " << b_y << " " << b_fee_b << " " << b_ch
@@ -198,7 +200,7 @@ void wcdapls::Loop() {
 
   while (inselect >> b_tot >> b_entry >> b_evt >> b_igcell >> b_x >> b_y >>
          b_fee_b >> b_ch >> b_anode_b >> b_dynode_b >> b_time_b) {
-    if ((b_tot % 10000) == 0)
+    if ((b_tot % 1000) == 0)
       cout << b_tot << "\r" << flush; // TODO
     // if (b_entry == disentry)
     //   continue;
@@ -224,7 +226,7 @@ void wcdapls::Loop() {
           stamp_retreat[b_igcell] += i - stamp[b_igcell];
           stamp[b_igcell] = i;
           t_match->Fill();
-        } else if (tick && (b_time_diff > big_exotic_jump)) {
+        } else if (0 && tick && (b_time_diff > big_exotic_jump)) {
           i = i - (b_time_diff / 1000000000LL * sm_evt_rate);
           // not need tick = 0, because a safety jump would make sure
           // b_time_diff < -timewin.
