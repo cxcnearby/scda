@@ -48,7 +48,7 @@ void wcdaevent::Loop() {
   Float_t b_x, b_y;
   Long64_t b_entry, b_tot, b_time_b;
   Long64_t b_evt;      // big pmt
-  int th_dynode = 500; // threshold of big selection.
+  int th_dynode = 100; // threshold of big selection.
 
   ofstream outselect;
   outselect.open("big_event_selectedram.dat");
@@ -87,7 +87,7 @@ void wcdaevent::Loop() {
                  hits_coarse_time[ihit] * 16. +
                  hits_second[ihit] * 1000000000LL;
       if (b_dynode_b > th_dynode &&
-          (b_igcell == 486 || b_igcell == 487 || b_igcell == 488||1)) {
+          (b_igcell == 486 || b_igcell == 487 || b_igcell == 488)) {
             //TODO
         b_tot++;
         outselect << b_tot << " " << b_entry << " " << b_evt << " " << b_igcell
@@ -108,7 +108,8 @@ void wcdapls::Loop() {
 
   Int_t b_igcell, b_fee_b, b_ch, b_anode_b, b_dynode_b;
   Float_t b_x, b_y;
-  Long64_t b_entry, b_tot, b_time_b;
+  Long64_t b_entry, b_tot, b_time_bs;
+  double b_time_bns;
   Long64_t b_evt; // big pmt
 
   Int_t b_fee_s, b_db, b_pmt, b_anode_s, b_dynode_s;
@@ -177,9 +178,9 @@ void wcdapls::Loop() {
   TTree *t_match =
       new TTree("tmatch", "big vs small match events"); // store the result
 
-  t_match->Branch("entry_number", &b_entry, "b_entry/L");
+//  t_match->Branch("entry_number", &b_entry, "b_entry/L");
   t_match->Branch("total_number", &b_tot, "b_tot/L");
-  t_match->Branch("event_time", &b_evt, "b_evt/L");
+//  t_match->Branch("event_time", &b_evt, "b_evt/L");
   t_match->Branch("igcell", &b_igcell, "b_igcell/I");
   t_match->Branch("fee_b", &b_fee_b, "b_fee_b/I");
   t_match->Branch("channel", &b_ch, "b_ch/I");
@@ -187,7 +188,8 @@ void wcdapls::Loop() {
   t_match->Branch("Y", &b_y, "b_y/F");
   t_match->Branch("anode_b", &b_anode_b, "b_anode_big/I");
   t_match->Branch("dynode_b", &b_dynode_b, "b_dynode_big/I");
-  t_match->Branch("time_b", &b_time_b, "b_time_big/L");
+  t_match->Branch("time_bs", &b_time_bs, "b_time_big/L");
+  t_match->Branch("time_bns", &b_time_bns, "b_time_big/L");
   t_match->Branch("fee_s", &b_fee_s, "b_fee_s/I");
   t_match->Branch("db", &b_db, "b_db/I");
   t_match->Branch("pmt", &b_pmt, "b_pmt/I");
@@ -198,15 +200,16 @@ void wcdapls::Loop() {
 
   b_tot = 0;
 
-  while (inselect >> b_tot >> b_entry >> b_evt >> b_igcell >> b_x >> b_y >>
-         b_fee_b >> b_ch >> b_anode_b >> b_dynode_b >> b_time_b) {
+  while (inselect >> b_tot >> b_entry >> b_x >> b_y >>
+         b_anode_b >> b_dynode_b >>b_fee_b >> b_ch >>  b_time_bs >>b_time_bns) {
     if ((b_tot % 1000) == 0)
-      cout << b_tot << "\r" << flush; // TODO
+      cout << b_tot << endl; // TODO
     // if (b_entry == disentry)
     //   continue;
+    b_igcell=bigpmtig[b_fee_b][b_ch];
     for (Long64_t i = stamp[b_igcell]; i < vfee_s.size(); i++) {
       b_time_s = vtime_s[i];
-      b_time_diff = b_time_s - b_time_b;
+      b_time_diff = b_time_s - (b_time_bs*1000000000LL+b_time_bns);
       if (b_time_diff < -timewin) {
         tick = 0;
         continue;
@@ -226,7 +229,7 @@ void wcdapls::Loop() {
           stamp_retreat[b_igcell] += i - stamp[b_igcell];
           stamp[b_igcell] = i;
           t_match->Fill();
-        } else if (tick && (b_time_diff > big_exotic_jump)) {
+        } else if (0&&tick && (b_time_diff > big_exotic_jump)) {
           i = i - (b_time_diff / 1000000000LL * sm_evt_rate);
           // not need tick = 0, because a safety jump would make sure
           // b_time_diff < -timewin.
@@ -265,7 +268,7 @@ int main(int argc, char *argv[]) {
   wcdaevent big(bpath, bfile);
   wcdapls sm(spath, sfile);
 
-  big.Loop();
+//  big.Loop();
 
   middle = clock();
   cout << "big selecting time " << double((middle - start) / CLOCKS_PER_SEC)

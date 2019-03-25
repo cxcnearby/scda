@@ -32,12 +32,14 @@ double bigpmtx[101][10];
 double bigpmty[101][10];
 int bigpmtig[101][10];
 
-std::vector<int> vfee_s;
-std::vector<int> vdb;
-std::vector<int> vpmt;
-std::vector<int> vanode_s;
-std::vector<int> vdynode_s;
-std::vector<long> vtime_s;
+int smigcell;
+std::vector<std::vector<int>> smfee(900);
+std::vector<std::vector<int>> smdb(900);
+std::vector<std::vector<int>> smpmt(900);
+std::vector<std::vector<int>> smanode(900);
+std::vector<std::vector<int>> smdynode(900);
+std::vector<std::vector<long>> smtime(900);
+std::vector<std::vector<long>> smtimedf(900); // small pmt
 
 void wcdaevent::Loop0() {}
 
@@ -86,9 +88,8 @@ void wcdaevent::Loop() {
       b_time_b = hits_low_th_fine_time[ihit] * 0.333 +
                  hits_coarse_time[ihit] * 16. +
                  hits_second[ihit] * 1000000000LL;
-      if (b_dynode_b > th_dynode &&
-          (b_igcell == 486 || b_igcell == 487 || b_igcell == 488||1)) {
-            //TODO
+      if (b_dynode_b > th_dynode) {
+        // TODO
         b_tot++;
         outselect << b_tot << " " << b_entry << " " << b_evt << " " << b_igcell
                   << " " << b_x << " " << b_y << " " << b_fee_b << " " << b_ch
@@ -118,13 +119,7 @@ void wcdapls::Loop() {
   Long64_t stamp_retreat[900] = {
       0};                  // measure the number which stamp[] should retreat to
                            // catch a very close hit in the same big pmt.
-  int tick = 1;            // do just 1 time when retreat the stamp.
   Long64_t timewin = 4000; // half width of the matching time window. (ns)
-  Long64_t cachetime = 300000000; // cache time of small fee to write, about
-                                  // 200ms, 300ms for safety.
-  Long64_t big_exotic_jump =
-      200000000; // an exotic time jump of single big pmt, about 300ms, 200ms
-                 // for safety exotic stamp[] retreat.
   int sm_evt_rate = 3000; // upper bound of event rate of small data (Hz), about
                           // 2000, 3000 for safety.
   // Long64_t discardtime =
@@ -149,6 +144,7 @@ void wcdapls::Loop() {
   Long64_t nentries = fChain->GetEntriesFast();
 
   Long64_t nbytes = 0, nb = 0;
+
   for (Long64_t jentry = 0; jentry < nentries; jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0)
@@ -156,16 +152,14 @@ void wcdapls::Loop() {
     nb = fChain->GetEntry(jentry);
     nbytes += nb;
     // if (Cut(ientry) < 0) continue;
-    b_anode_s = anode_peak - anode_ped;
-    if (b_anode_s > 0) {
-      vfee_s.push_back(fee);
-      vdb.push_back(db);
-      vpmt.push_back(pmt);
-      vanode_s.push_back(b_anode_s);
-      b_dynode_s = dynode_peak - dynode_ped;
-      vdynode_s.push_back(b_dynode_s);
-      b_time_s = (second + 1) * 1000000000LL + ns * 20LL;
-      vtime_s.push_back(b_time_s);
+    smigcell = smpmtig_jd[fee][db][pmt];
+    if (anode_peak - anode_ped > 0) {
+      smfee[smigcell].push_back(fee);
+      smdb[smigcell].push_back(db);
+      smpmt[smigcell].push_back(pmt);
+      smanode[smigcell].push_back(anode_peak - anode_ped);
+      smdynode[smigcell].push_back(dynode_peak - dynode_ped);
+      smtime[smigcell].push_back((second + 1) * 1000000000LL + ns * 20LL);
     }
   }
 
@@ -204,45 +198,25 @@ void wcdapls::Loop() {
       cout << b_tot << "\r" << flush; // TODO
     // if (b_entry == disentry)
     //   continue;
-    for (Long64_t i = stamp[b_igcell]; i < vfee_s.size(); i++) {
-      b_time_s = vtime_s[i];
+    for (Long64_t i = stamp[b_igcell]; i < smfee[b_igcell].size(); i++) {
+      b_time_s = smtime[b_igcell][i];
       b_time_diff = b_time_s - b_time_b;
       if (b_time_diff < -timewin) {
-        tick = 0;
         continue;
       }
-      if (b_igcell == smpmtig_jd[vfee_s[i]][vdb[i]][vpmt[i]]) {
-        if (b_time_diff < timewin) {
-          if (tick) {
-            i = i - stamp_retreat[b_igcell] - 1;
-            tick = 0;
-            continue;
-          }
-          b_fee_s = vfee_s[i];
-          b_db = vdb[i];
-          b_pmt = vpmt[i];
-          b_anode_s = vanode_s[i];
-          b_dynode_s = vdynode_s[i];
-          stamp_retreat[b_igcell] += i - stamp[b_igcell];
-          stamp[b_igcell] = i;
-          t_match->Fill();
-        } else if (tick && (b_time_diff > big_exotic_jump)) {
-          i = i - (b_time_diff / 1000000000LL * sm_evt_rate);
-          // not need tick = 0, because a safety jump would make sure
-          // b_time_diff < -timewin.
-        } else
-          break;
+      if (b_time_diff < timewin) {
+        b_fee_s = smfee[b_igcell][i];
+        b_db = smdb[b_igcell][i];
+        b_pmt = smpmt[b_igcell][i];
+        b_anode_s = smanode[b_igcell][i];
+        b_dynode_s = smdynode[b_igcell][i];
+        stamp[b_igcell] = i;
+        t_match->Fill();
       }
-      if (b_time_diff > cachetime) {
-        // to check if we should discard the whole entry.
-        //        if ((b_time_s - b_evt) > discardtime)
-        // disentry = b_entry; // FIXME
-        break;
-      }
+      break;
     }
-    tick = 1;
-    //    break;
   }
+
   inselect.close();
   f_matchevents->Write();
   smfinish = clock();
