@@ -93,7 +93,6 @@ void wcdaevent::Loop() {
                  hits_coarse_time[ihit] * 16. +
                  hits_second[ihit] * 1000000000LL;
       if (b_dynode_b > th_dynode) {
-        // TODO
         b_tot++;
         outselect << b_tot << " " << b_entry << " " << b_evt << " " << b_igcell
                   << " " << b_x << " " << b_y << " " << b_fee_b << " " << b_ch
@@ -102,7 +101,7 @@ void wcdaevent::Loop() {
       }
     }
   }
-  cout << b_tot << endl; // TODO
+  cout << b_tot << endl;
   outselect.close();
 }
 
@@ -192,7 +191,7 @@ void wcdapls::Loop() {
   while (inselect >> b_tot >> b_entry >> b_evt >> b_igcell >> b_x >> b_y >>
          b_fee_b >> b_ch >> b_anode_b >> b_dynode_b >> b_time_b) {
     if ((b_tot % 10000) == 0)
-      cout << b_tot << "\r" << flush; // TODO
+      cout << b_tot << "\r" << flush;
     // if (b_entry == disentry)
     //   continue;
     for (Long64_t i = stamp[b_igcell]; i < smfee[b_igcell].size(); i++) {
