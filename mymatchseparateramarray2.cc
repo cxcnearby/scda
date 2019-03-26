@@ -50,7 +50,7 @@ void wcdaevent::Loop() {
   Float_t b_x, b_y;
   Long64_t b_entry, b_tot, b_time_b;
   Long64_t b_evt;      // big pmt
-  int th_dynode = 500; // threshold of big selection.
+  int th_dynode = 100; // threshold of big selection.
 
   ofstream outselect;
   outselect.open("big_event_selectedram.dat");
@@ -119,15 +119,8 @@ void wcdapls::Loop() {
   Long64_t stamp_retreat[900] = {
       0};                  // measure the number which stamp[] should retreat to
                            // catch a very close hit in the same big pmt.
-  Long64_t timewin = 4000; // half width of the matching time window. (ns)
-  int sm_evt_rate = 3000; // upper bound of event rate of small data (Hz), about
-                          // 2000, 3000 for safety.
-  // Long64_t discardtime =
-  //     timewin + 2500;     //  > discardtime means discard. 2500 is an
-  //                         //  upper bound of the time gap that the last hit
-  //                         time
-  //                         //  subtract the corresponding event time.
-  // Long64_t disentry = -1; //  the entry to be discarded of big events.
+  Long64_t timewin = 2000; // half width of the matching time window. (ns)
+  Long64_t timerej = 500;
 
   ifstream inselect;
   inselect.open("big_event_selectedram.dat");
@@ -194,17 +187,17 @@ void wcdapls::Loop() {
 
   while (inselect >> b_tot >> b_entry >> b_evt >> b_igcell >> b_x >> b_y >>
          b_fee_b >> b_ch >> b_anode_b >> b_dynode_b >> b_time_b) {
-    if ((b_tot % 1000) == 0)
+    if ((b_tot % 10000) == 0)
       cout << b_tot << "\r" << flush; // TODO
     // if (b_entry == disentry)
     //   continue;
     for (Long64_t i = stamp[b_igcell]; i < smfee[b_igcell].size(); i++) {
       b_time_s = smtime[b_igcell][i];
       b_time_diff = b_time_s - b_time_b;
-      if (b_time_diff < -timewin) {
+      if (b_time_diff < -timewin || fabs(b_time_diff)<timerej) {
         continue;
       }
-      if (b_time_diff < timewin) {
+      if (fabs(b_time_diff) < timewin) {
         b_fee_s = smfee[b_igcell][i];
         b_db = smdb[b_igcell][i];
         b_pmt = smpmt[b_igcell][i];
@@ -212,8 +205,8 @@ void wcdapls::Loop() {
         b_dynode_s = smdynode[b_igcell][i];
         stamp[b_igcell] = i;
         t_match->Fill();
-      }
-      break;
+      } else
+        break;
     }
   }
 
