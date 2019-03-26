@@ -27,6 +27,8 @@ using namespace std;
 
 double bigpmtx[101][10];
 double bigpmty[101][10];
+double bigpmtig[101][10];
+
 int bigevt0 = 0;
 
 void wcdaevent::Loop() {
