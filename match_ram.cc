@@ -1,3 +1,9 @@
+//  an improved version of match_file.cc. store all the data of small pmts to
+//  RAM. Much faster, but still store together with a mixing pmt arrangement. It
+//  requires frequent and great jumping in the data sequence. So It is not
+//  efficient. But the jumping method may be useful.
+// still a historical version.
+
 #define wcdaevent_cxx
 #define wcdapls_cxx
 
@@ -87,8 +93,8 @@ void wcdaevent::Loop() {
                  hits_coarse_time[ihit] * 16. +
                  hits_second[ihit] * 1000000000LL;
       if (b_dynode_b > th_dynode &&
-          (b_igcell == 486 || b_igcell == 487 || b_igcell == 488||1)) {
-            //TODO
+          (b_igcell == 486 || b_igcell == 487 || b_igcell == 488 || 1)) {
+        // TODO
         b_tot++;
         outselect << b_tot << " " << b_entry << " " << b_evt << " " << b_igcell
                   << " " << b_x << " " << b_y << " " << b_fee_b << " " << b_ch

@@ -1,3 +1,6 @@
+// A sister version of match_ram_pmt.cc. The only difference: this code use the
+// wcdahit data instead of wcdaevent data.
+
 #define wcdahits_cxx
 #define wcdapls_cxx
 
@@ -187,7 +190,7 @@ void wcdapls::Loop() {
     for (Long64_t i = stamp[b_igcell]; i < smfee[b_igcell].size(); i++) {
       b_time_s = smtime[b_igcell][i];
       b_time_diff = b_time_s - b_time_b;
-      if (b_time_diff < -timewin || fabs(b_time_diff)<timerej) {
+      if (b_time_diff < -timewin || fabs(b_time_diff) < timerej) {
         continue;
       }
       if (fabs(b_time_diff) < timewin) {

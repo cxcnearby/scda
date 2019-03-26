@@ -1,3 +1,6 @@
+// A special version of match_ram_pmt.cc to skip the process of big pmt data and
+// turn to liucheng's selected data file.
+
 #define wcdaevent_cxx
 #define wcdapls_cxx
 

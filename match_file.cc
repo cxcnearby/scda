@@ -1,3 +1,7 @@
+//  this code use the root files to do the matching. It is a very slow way. But
+//  may be helpful when the root file is too large and the data cannot be
+//  wholely store to RAM directly.
+
 #define wcdaevent_cxx
 #define wcdapls_cxx
 
@@ -154,7 +158,7 @@ void wcdapls::Loop() {
   while (inselect >> b_tot >> b_entry >> b_evt >> b_igcell >> b_x >> b_y >>
          b_fee_b >> b_ch >> b_anode_b >> b_dynode_b >> b_time_b) {
     // if ((b_tot % 10000) == 0) //FIXME
-      cout << b_tot << "\r" << flush; // TODO
+    cout << b_tot << "\r" << flush; // TODO
     if (b_entry == disentry)
       continue;
     for (Long64_t jentry = stamp[b_igcell]; jentry < nentries; jentry++) {
@@ -167,13 +171,13 @@ void wcdapls::Loop() {
       b_time_s = (second + 1) * 1000000000LL + ns * 20LL;
       b_time_diff = b_time_s - b_time_b;
       // if ()
-        if (b_time_diff < -timewin)
-          continue;
+      if (b_time_diff < -timewin)
+        continue;
       if (b_time_diff > timewin) {
         stamp[b_igcell] = jentry;
         // to check if we should discard the whole entry.
         if ((b_time_s - b_evt) > discardtime)
-          disentry = b_entry; //FIXME
+          disentry = b_entry; // FIXME
         break;
       }
       if (b_igcell == smpmtig_jd[fee][db][pmt]) {

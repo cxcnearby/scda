@@ -1,3 +1,7 @@
+//  This version use vectors to store the data of small pmts one pmt by pmt. So
+//  it needs no jumping, if we omit some disorder events in the big pmt data.
+//  Much faster!
+
 #define wcdaevent_cxx
 #define wcdapls_cxx
 
@@ -194,7 +198,7 @@ void wcdapls::Loop() {
     for (Long64_t i = stamp[b_igcell]; i < smfee[b_igcell].size(); i++) {
       b_time_s = smtime[b_igcell][i];
       b_time_diff = b_time_s - b_time_b;
-      if (b_time_diff < -timewin || fabs(b_time_diff)<timerej) {
+      if (b_time_diff < -timewin || fabs(b_time_diff) < timerej) {
         continue;
       }
       if (fabs(b_time_diff) < timewin) {

@@ -1,3 +1,5 @@
+//  An old version to select big pmt data separately.  output .root file.
+
 #define wcdaevent_cxx
 #define wcdapls_cxx
 #include "wcdaevent.h"
