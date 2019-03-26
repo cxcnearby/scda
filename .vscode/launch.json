@@ -11,9 +11,9 @@
             "program": "${fileDirname}/${fileBasenameNoExtension}.exe",
             "args": [
                 "/home/changxc/mywork/code/repo/scda/data",
-                "ES.10001.WCDAEvent.20190215005726.007.root",
+                "ES.12985.FULL.PHYSICS.20190321021456.001.root",
                 "/home/changxc/mywork/code/repo/scda/data",
-                "ES.10003.TimedFrag.20190215004023.007.dat.root"
+                "ES.12966.FULL.PHYSICS.20190321014407.007.dat.root"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
