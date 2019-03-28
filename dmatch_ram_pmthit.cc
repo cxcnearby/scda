@@ -48,9 +48,11 @@ void wcdapls::Loop() {}
 void wcdahits::Loop() {}
 
 int main(int argc, char *argv[]) {
+#include "bigpmtpos.h"
+#include "smpmtpos.h"
 
   if (argc < 4) {
-    cout << argv[0] << " bfile sfile ofile.root" << endl;
+    std::cout << argv[0] << " bfile sfile ofile.root" << endl;
     exit(0);
   }
 
@@ -143,6 +145,7 @@ int main(int argc, char *argv[]) {
     if (bientry < 0)
       break;
     big.fChain->GetEntry(bjentry);
+
     if (!(big.dynode_charge > th_dynode))
       continue;
     b_tot++;
@@ -186,13 +189,13 @@ int main(int argc, char *argv[]) {
         break;
     }
     if ((b_tot % 10000) == 0)
-      cout << b_tot << "\r" << flush;
+      std::cout << b_tot << "\r" << flush;
   }
   f_matchevents->Write();
 
   finish = clock();
-  cout << "big hits " << b_tot << " total time "
-       << double((finish - start) / CLOCKS_PER_SEC) << " s" << endl;
+  std::cout << "big hits " << b_tot << " total time "
+            << double((finish - start) / CLOCKS_PER_SEC) << " s" << endl;
 
   return 0;
 }

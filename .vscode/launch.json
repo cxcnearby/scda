@@ -10,10 +10,9 @@
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}.exe",
             "args": [
-                "/home/changxc/mywork/code/repo/scda/data",
-                "ES.12985.FULL.PHYSICS.20190321021456.001.root",
-                "/home/changxc/mywork/code/repo/scda/data",
-                "ES.12966.FULL.PHYSICS.20190321014407.007.dat.root"
+                "ES.12981.FULL.PHYSICS.20190321010521.001.dat.root",
+                "ES.12966.FULL.PHYSICS.20190321003251.005.dat.root",
+                "test01.root"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
