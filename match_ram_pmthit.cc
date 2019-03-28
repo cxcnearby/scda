@@ -44,6 +44,8 @@ std::vector<std::vector<int>> smdynode(900);
 std::vector<std::vector<long>> smtime(900);
 std::vector<std::vector<long>> smtimedf(900); // small pmt
 
+string datfile, rootfile; // output file path and name
+
 void wcdahits::Loop() {
 #include "bigpmtpos.h"
 
@@ -51,10 +53,10 @@ void wcdahits::Loop() {
   Float_t b_x, b_y;
   Long64_t b_entry, b_tot, b_time_b;
   // big pmt
-  int th_dynode = 100; // threshold of big selection.
+  int th_dynode = 0; // threshold of big selection.
 
   ofstream outselect;
-  outselect.open("big_event_selectedram.dat");
+  outselect.open(datfile);
   if (!outselect.is_open()) {
     cout << "cannot write the data file!";
     exit(0);
@@ -84,7 +86,8 @@ void wcdahits::Loop() {
     b_y = bigpmty[b_fee_b][b_ch];
     b_anode_b = anode_charge;
     b_dynode_b = dynode_charge;
-    b_time_b = low_th_fine_time * 0.333 + coarse_time + second * 1000000000LL;
+    b_time_b =
+        low_th_fine_time * 0.333 + coarse_time * 16 + second * 1000000000LL;
     if (b_dynode_b > th_dynode) {
       // TODO
       b_tot++;
@@ -105,10 +108,13 @@ void wcdapls::Loop() {
   Int_t b_igcell, b_fee_b, b_ch, b_anode_b, b_dynode_b;
   Float_t b_x, b_y;
   Long64_t b_entry, b_tot, b_time_b;
+  double_t b_npe_b;
   // big pmt
 
   Int_t b_fee_s, b_db, b_pmt, b_anode_s, b_dynode_s;
-  Long64_t b_time_s, b_time_diff; // small pmt
+  Long64_t b_time_s, b_time_diff;
+  double_t b_npe_s;
+  // small pmt
 
   Long64_t stamp[900] = {0}; // save the latest event position in each igcell.
   Long64_t stamp_retreat[900] = {
@@ -117,8 +123,11 @@ void wcdapls::Loop() {
   Long64_t timewin = 4000; // half width of the matching time window. (ns)
   Long64_t timerej = 0;
 
+  Long64_t timelow = 500;
+  Long64_t timeup = 2500; // lower and upper bound for time window.
+
   ifstream inselect;
-  inselect.open("big_event_selectedram.dat");
+  inselect.open(datfile);
   if (!inselect.is_open()) {
     cout << "cannot open the data file!";
     exit(0);
@@ -149,7 +158,8 @@ void wcdapls::Loop() {
       smpmt[smigcell].push_back(pmt);
       smanode[smigcell].push_back(anode_peak - anode_ped);
       smdynode[smigcell].push_back(dynode_peak - dynode_ped);
-      smtime[smigcell].push_back((second + 1) * 1000000000LL + ns * 20LL);
+      smtime[smigcell].push_back((second + 1) * 1000000000LL +
+                                 ns * 20LL); // TODO
     }
   }
 
@@ -157,7 +167,7 @@ void wcdapls::Loop() {
   cout << "small reading time " << double((smmiddle - smstart) / CLOCKS_PER_SEC)
        << " s" << endl;
 
-  TFile *f_matchevents = new TFile("matcheventsram.root", "recreate");
+  TFile *f_matchevents = new TFile(rootfile.c_str(), "recreate");
   TTree *t_match =
       new TTree("tmatch", "big vs small match events"); // store the result
 
@@ -170,12 +180,14 @@ void wcdapls::Loop() {
   t_match->Branch("Y", &b_y, "b_y/F");
   t_match->Branch("anode_b", &b_anode_b, "b_anode_big/I");
   t_match->Branch("dynode_b", &b_dynode_b, "b_dynode_big/I");
+  t_match->Branch("npe_b", &b_npe_b, "b_npe_b/D");
   t_match->Branch("time_b", &b_time_b, "b_time_big/L");
   t_match->Branch("fee_s", &b_fee_s, "b_fee_s/I");
   t_match->Branch("db", &b_db, "b_db/I");
   t_match->Branch("pmt", &b_pmt, "b_pmt/I");
   t_match->Branch("anode_s", &b_anode_s, "b_anode_peak/I");
   t_match->Branch("dynode_s", &b_dynode_s, "b_dynode_peak/I");
+  t_match->Branch("npe_s", &b_npe_s, "b_npe_s/D");
   t_match->Branch("time_s", &b_time_s, "b_time_small/L");
   t_match->Branch("time_df", &b_time_diff, "b_time_s - b_time_b /L");
 
@@ -187,18 +199,43 @@ void wcdapls::Loop() {
       cout << b_tot << "\r" << flush; // TODO
     // if (b_entry == disentry)
     //   continue;
+    Double_t q0 = b_anode_b / 22.0;
+    Double_t q1 = b_dynode_b / 0.50094; // 0.50094 = 0.726 * 0.69
+    b_npe_b = q0;
+    if (q0 <= 0)
+      b_npe_b = 1.e-20;
+    if (q0 > 160 && q1 > 0)
+      b_npe_b = q1; // npe transforming.
+
     for (Long64_t i = stamp[b_igcell]; i < smfee[b_igcell].size(); i++) {
       b_time_s = smtime[b_igcell][i];
       b_time_diff = b_time_s - b_time_b;
-      if (b_time_diff < -timewin || fabs(b_time_diff) < timerej) {
+      /*       if (b_time_diff < -timewin || fabs(b_time_diff) < timerej) {
+              continue;
+            }
+            if (fabs(b_time_diff) < timewin) {
+              b_fee_s = smfee[b_igcell][i];
+              b_db = smdb[b_igcell][i];
+              b_pmt = smpmt[b_igcell][i];
+              b_anode_s = smanode[b_igcell][i];
+              b_dynode_s = smdynode[b_igcell][i];
+              stamp[b_igcell] = i;
+              t_match->Fill();
+            } else
+              break; */
+      if (b_time_diff < timelow) {
         continue;
       }
-      if (fabs(b_time_diff) < timewin) {
+      if (b_time_diff < timeup) {
         b_fee_s = smfee[b_igcell][i];
         b_db = smdb[b_igcell][i];
         b_pmt = smpmt[b_igcell][i];
         b_anode_s = smanode[b_igcell][i];
         b_dynode_s = smdynode[b_igcell][i];
+        if (b_anode_s < 4000)
+          b_npe_s = b_anode_s * 2.;
+        else
+          b_npe_s = b_dynode_s * 120. * 2.;
         stamp[b_igcell] = i;
         t_match->Fill();
       } else
@@ -215,8 +252,8 @@ void wcdapls::Loop() {
 
 int main(int argc, char *argv[]) {
 
-  if (argc < 5) {
-    cout << argv[0] << " bpath bfile spath sfile" << endl;
+  if (argc < 6) {
+    cout << argv[0] << " bpath bfile spath sfile ofile(.root)" << endl;
     exit(0);
   }
 
@@ -224,6 +261,8 @@ int main(int argc, char *argv[]) {
   start = clock();
 
   string bpath = argv[1], bfile = argv[2], spath = argv[3], sfile = argv[4];
+  datfile = datfile + argv[5] + ".dat";
+  rootfile = rootfile + argv[5] + ".root";
 
   wcdahits big(bpath, bfile);
   wcdapls sm(spath, sfile);
@@ -239,6 +278,8 @@ int main(int argc, char *argv[]) {
   finish = clock();
   cout << "total time " << double((finish - start) / CLOCKS_PER_SEC) << " s"
        << endl;
+
+  remove(datfile.c_str());
 
   return 0;
 }
