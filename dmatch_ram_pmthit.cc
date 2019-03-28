@@ -167,9 +167,24 @@ int main(int argc, char *argv[]) {
     if (q0 > 160 && q1 > 0)
       b_npe_b = q1; // npe transforming.
 
+    int ifsearch = 1; // a sign to determine if we search for the first matching
+                      // event. do only 1 time for a big event.
     for (Long64_t i = stamp[b_igcell]; i < smfee[b_igcell].size(); i++) {
       b_time_s = smtime[b_igcell][i];
       b_time_diff = b_time_s - b_time_b;
+      Long64_t i0 = i;
+      Long64_t search_length = sqrt(smfee[b_igcell].size() - stamp[b_igcell]);
+      while (ifsearch && b_time_diff < timelow) {
+        i0 = i;
+        i += search_length;
+        b_time_diff = smtime[b_igcell][i] - b_time_b;
+      }
+      if (ifsearch) {
+        i = i0;
+        b_time_s = smtime[b_igcell][i];
+        b_time_diff = b_time_s - b_time_b;
+        ifsearch = 0;
+      }
       if (b_time_diff < timelow) {
         continue;
       }
