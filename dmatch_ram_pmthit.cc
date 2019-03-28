@@ -174,7 +174,7 @@ int main(int argc, char *argv[]) {
       b_time_diff = b_time_s - b_time_b;
       Long64_t i0 = i;
       Long64_t search_length = sqrt(smfee[b_igcell].size() - stamp[b_igcell]);
-      while (ifsearch && b_time_diff < timelow) {
+      while (ifsearch && i < smfee[b_igcell].size() && b_time_diff < timelow) {
         i0 = i;
         i += search_length;
         b_time_diff = smtime[b_igcell][i] - b_time_b;
@@ -204,7 +204,8 @@ int main(int argc, char *argv[]) {
         break;
     }
     if ((b_tot % 10000) == 0)
-      std::cout << b_tot << "\r" << flush;
+      std::cout << " " << (b_tot * 100 / bnentries) << "%    " << b_tot << "\r"
+                << flush;
   }
   f_matchevents->Write();
 
