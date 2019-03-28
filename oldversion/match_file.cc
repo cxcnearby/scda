@@ -90,7 +90,7 @@ void wcdaevent::Loop() {
       }
     }
   }
-  cout << b_tot << endl; // TODO
+  cout << b_tot << endl; 
   outselect.close();
 }
 
@@ -157,8 +157,8 @@ void wcdapls::Loop() {
   Long64_t nbytes = 0, nb = 0;
   while (inselect >> b_tot >> b_entry >> b_evt >> b_igcell >> b_x >> b_y >>
          b_fee_b >> b_ch >> b_anode_b >> b_dynode_b >> b_time_b) {
-    // if ((b_tot % 10000) == 0) //FIXME
-    cout << b_tot << "\r" << flush; // TODO
+    // if ((b_tot % 10000) == 0) 
+    cout << b_tot << "\r" << flush; 
     if (b_entry == disentry)
       continue;
     for (Long64_t jentry = stamp[b_igcell]; jentry < nentries; jentry++) {
@@ -177,7 +177,7 @@ void wcdapls::Loop() {
         stamp[b_igcell] = jentry;
         // to check if we should discard the whole entry.
         if ((b_time_s - b_evt) > discardtime)
-          disentry = b_entry; // FIXME
+          disentry = b_entry; // insightful!!
         break;
       }
       if (b_igcell == smpmtig_jd[fee][db][pmt]) {

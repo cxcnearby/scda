@@ -89,14 +89,13 @@ void wcdahits::Loop() {
     b_time_b =
         low_th_fine_time * 0.333 + coarse_time * 16 + second * 1000000000LL;
     if (b_dynode_b > th_dynode) {
-      // TODO
       b_tot++;
       outselect << b_tot << " " << b_entry << " " << b_igcell << " " << b_x
                 << " " << b_y << " " << b_fee_b << " " << b_ch << " "
                 << b_anode_b << " " << b_dynode_b << " " << b_time_b << endl;
     }
   }
-  cout << b_tot << endl; // TODO
+  cout << b_tot << endl;
   outselect.close();
 }
 
@@ -196,7 +195,7 @@ void wcdapls::Loop() {
   while (inselect >> b_tot >> b_entry >> b_igcell >> b_x >> b_y >> b_fee_b >>
          b_ch >> b_anode_b >> b_dynode_b >> b_time_b) {
     if ((b_tot % 10000) == 0)
-      cout << b_tot << "\r" << flush; // TODO
+      cout << b_tot << "\r" << flush;
     // if (b_entry == disentry)
     //   continue;
     Double_t q0 = b_anode_b / 22.0;
