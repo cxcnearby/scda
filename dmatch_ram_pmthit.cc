@@ -17,7 +17,7 @@
 #include "TPad.h"
 #include "TStyle.h"
 #include "TTree.h"
-#include "dwcdahits.h"
+#include "wcdahits.h"
 #include "wcdapls.h"
 #include <TCanvas.h>
 #include <TH2.h>
@@ -44,7 +44,7 @@ std::vector<std::vector<int>> smdynode(900);
 std::vector<std::vector<long>> smtime(900);
 std::vector<std::vector<long>> smtimedf(900); // small pmt
 
-string rootfile; // output file path and name
+string datfile, rootfile; // output file path and name
 
 void wcdahits::Loop() {
 #include "bigpmtpos.h"
@@ -54,6 +54,13 @@ void wcdahits::Loop() {
   Long64_t b_entry, b_tot, b_time_b;
   // big pmt
   int th_dynode = 0; // threshold of big selection.
+
+  ofstream outselect;
+  outselect.open(datfile);
+  if (!outselect.is_open()) {
+    cout << "cannot write the data file!";
+    exit(0);
+  }
 
   b_tot = 0;
 
@@ -103,7 +110,6 @@ void wcdapls::Loop() {
   Long64_t b_entry, b_tot, b_time_b;
   double_t b_npe_b;
   // big pmt
-  int th_dynode = 0; // threshold of big selection.
 
   Int_t b_fee_s, b_db, b_pmt, b_anode_s, b_dynode_s;
   Long64_t b_time_s, b_time_diff;
@@ -119,6 +125,13 @@ void wcdapls::Loop() {
 
   Long64_t timelow = 500;
   Long64_t timeup = 2500; // lower and upper bound for time window.
+
+  ifstream inselect;
+  inselect.open(datfile);
+  if (!inselect.is_open()) {
+    cout << "cannot open the data file!";
+    exit(0);
+  }
 
   smstart = clock();
 
@@ -248,6 +261,7 @@ int main(int argc, char *argv[]) {
   start = clock();
 
   string bpath = argv[1], bfile = argv[2], spath = argv[3], sfile = argv[4];
+  datfile = datfile + argv[5] + ".dat";
   rootfile = rootfile + argv[5] + ".root";
 
   wcdahits big(bpath, bfile);
@@ -264,6 +278,8 @@ int main(int argc, char *argv[]) {
   finish = clock();
   cout << "total time " << double((finish - start) / CLOCKS_PER_SEC) << " s"
        << endl;
+
+  remove(datfile.c_str());
 
   return 0;
 }
