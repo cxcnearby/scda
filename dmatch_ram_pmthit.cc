@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
   Long64_t b_entry, b_tot, b_time_b;
   double_t b_npe_b;
   // big pmt
-  int th_dynode = 0; // threshold of big selection.
+  int th_dynode = 100; // threshold of big selection.
 
   Int_t b_fee_s, b_db, b_pmt, b_anode_s, b_dynode_s;
   Long64_t b_time_s, b_time_diff;
@@ -204,7 +204,7 @@ int main(int argc, char *argv[]) {
         break;
     }
     if ((b_tot % 10000) == 0)
-      std::cout << " " << (b_tot * 100 / bnentries) << "%    " << b_tot << "\r"
+      std::cout << " " << (b_entry * 100 / bnentries) << "%    " << b_tot << "\r"
                 << flush;
   }
   f_matchevents->Write();
