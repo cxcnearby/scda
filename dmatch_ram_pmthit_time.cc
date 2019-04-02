@@ -73,10 +73,10 @@ int main(int argc, char *argv[]) {
   Long64_t b_entry, b_tot, b_time_b;
   double_t b_npe_b;
   // big pmt
-  int th_dynode = 100; // threshold of big selection.
+  int th_dynode = 0; // threshold of big selection.
 
   Int_t b_fee_s, b_db, b_pmt, b_anode_s, b_dynode_s;
-  Long64_t b_time_s, b_time_diff, b_time_s_anode, b_time_s_dynode;
+  Long64_t b_time_s, b_time_diff, b_time_s_anode, b_time_s_dynode, b_time_diff_anode, b_time_diff_dynode;
   double_t b_npe_s;
   // small pmt
 
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
   Long64_t timewin = 4000; // half width of the matching time window. (ns)
   Long64_t timerej = 0;
 
-  Long64_t timelow = 500;
+  Long64_t timelow = 100;
   Long64_t timeup = 2500; // lower and upper bound for time window.
 
   TFile *f_matchevents = new TFile(rootfile.c_str(), "recreate");
@@ -115,6 +115,8 @@ int main(int argc, char *argv[]) {
   t_match->Branch("anodetime_s", &b_time_s_anode, "b_time_s_anode/L");
   t_match->Branch("dynodetime_s", &b_time_s_dynode, "b_time_s_dynode/L");
   t_match->Branch("time_df", &b_time_diff, "b_time_s - b_time_b /L");
+  t_match->Branch("time_df_anode", &b_time_diff_anode, "b_time_s_anode - b_time_b /L");
+  t_match->Branch("time_df_dynode", &b_time_diff_dynode, "b_time_s_dynode - b_time_b /L");
 
   //  put small data into RAM.
   if (sm.fChain == 0)
@@ -135,11 +137,11 @@ int main(int argc, char *argv[]) {
       smanode[smigcell].push_back(sm.anode_peak - sm.anode_ped);
       smdynode[smigcell].push_back(sm.dynode_peak - sm.dynode_ped);
       smtime[smigcell].push_back((sm.second + 1) * 1000000000LL + sm.ns * 20LL -
-                                 64.34); // TODO
+                                 64); // TODO
       smtime_anode[smigcell].push_back((sm.second + 1) * 1000000000LL +
-                                       sm.ns * 20LL - 64.34 + sm.anode_time);
+                                       sm.ns * 20LL - 64 + sm.anode_time);
       smtime_dynode[smigcell].push_back((sm.second + 1) * 1000000000LL +
-                                        sm.ns * 20LL - 64.34 + sm.dynode_time);
+                                        sm.ns * 20LL - 64 + sm.dynode_time);
     }
   }
 
@@ -204,6 +206,9 @@ int main(int argc, char *argv[]) {
         b_dynode_s = smdynode[b_igcell][i];
         b_time_s_anode = smtime_anode[b_igcell][i];
         b_time_s_dynode = smtime_dynode[b_igcell][i];
+        b_time_diff_anode = b_time_s_anode - b_time_b;
+        b_time_diff_dynode = b_time_s_dynode - b_time_b;
+
         if (b_anode_s < 4000)
           b_npe_s = b_anode_s * 2.;
         else
@@ -213,7 +218,7 @@ int main(int argc, char *argv[]) {
       } else
         break;
     }
-    if ((b_tot % 10000) == 0)
+    if ((b_tot % 10000) == 0&&b_tot>100000000)
       std::cout << " " << (b_entry * 100 / bnentries) << "%    " << b_tot
                 << "\r" << flush;
   }
