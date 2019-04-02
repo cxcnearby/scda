@@ -38,7 +38,9 @@ int bigpmtig[101][10];
 Long64_t temptime_b[900] = {0};
 Long64_t temptime_s[900] = {0};
 Long64_t temptime_anode[900] = {0};
-Long64_t temptime_dynode[900] = {0}; // to calculate T_i - T_i-1, we need to store T_i-1 for each pmt and for each kind of time.
+Long64_t temptime_dynode[900] = {
+    0}; // to calculate T_i - T_i-1, we need to store T_i-1 for each pmt and for
+        // each kind of time.
 
 int smigcell;
 std::vector<std::vector<long>> smentry(900);
@@ -81,7 +83,7 @@ int main(int argc, char *argv[]) {
   Long64_t b_entry_b, b_tot, b_time_b, b_deltatime_b;
   double_t b_npe_b;
   // big pmt
-  int th_dynode = 0; // threshold of big selection.
+  int th_dynode = 300; // threshold of big selection.
 
   Int_t b_fee_s, b_db, b_pmt, b_anode_s, b_dynode_s;
   Long64_t b_entry_s, b_time_s, b_deltatime_s, b_time_diff, b_time_anode,
@@ -140,8 +142,10 @@ int main(int argc, char *argv[]) {
 
   Int_t b_igcell_d, b_fee_d, b_db_d, b_pmt_d, b_anode_d, b_dynode_d;
   Long64_t b_entry_d, b_tot_d = 0, b_time_d, b_deltatime_d;
-  TTree *t_smdisorder =
-      new TTree("tsmdisorder", "small event disorder: T_i - T_i-1");   // this tree is to store small pmt time disorder data.
+  TTree *t_smdisorder = new TTree(
+      "tsm",
+      "small event disorder: T_i - T_i-1"); // this tree is to store small pmt
+                                            // time disorder data.
   t_smdisorder->Branch("entry", &b_entry_d, "b_entry /L");
   t_smdisorder->Branch("total", &b_tot_d, "b_total /L");
   t_smdisorder->Branch("igcell", &b_igcell_d, "b_igcell/I");
@@ -180,10 +184,12 @@ int main(int argc, char *argv[]) {
       smtime_dynode[smigcell].push_back((sm.second + 1) * 1000000000LL +
                                         sm.ns * 20LL - 64 +
                                         sm.dynode_time * 20LL);
-      if (IfCheckSmDisorder) {  //  if we will store small pmt time disorder data.
+      if (IfCheckSmDisorder) { //  if we will store small pmt time disorder
+                               //  data.
         b_tot_d++;
         b_entry_d = smentry[smigcell].back();
-        b_igcell_d = smpmtig_jd[smfee[smigcell].back()][smdb[smigcell].back()][smpmt[smigcell].back()];
+        b_igcell_d = smpmtig_jd[smfee[smigcell].back()][smdb[smigcell].back()]
+                               [smpmt[smigcell].back()];
         b_fee_d = smfee[smigcell].back();
         b_db_d = smdb[smigcell].back();
         b_pmt_d = smpmt[smigcell].back();
