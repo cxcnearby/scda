@@ -176,13 +176,13 @@ int main(int argc, char *argv[]) {
       smpmt[smigcell].push_back(sm.pmt);
       smanode[smigcell].push_back(sm.anode_peak - sm.anode_ped);
       smdynode[smigcell].push_back(sm.dynode_peak - sm.dynode_ped);
-      smtime[smigcell].push_back((sm.second + 1) * 1000000000LL + sm.ns * 20LL -
-                                 64); // TODO
-      smtime_anode[smigcell].push_back((sm.second + 1) * 1000000000LL +
-                                       sm.ns * 20LL - 64 +
+      smtime[smigcell].push_back((sm.second + 1LL) * 1000000000LL + sm.ns * 20LL -
+                                 64LL); // TODO
+      smtime_anode[smigcell].push_back((sm.second + 1LL) * 1000000000LL +
+                                       sm.ns * 20LL - 64LL +
                                        sm.anode_time * 20LL);
-      smtime_dynode[smigcell].push_back((sm.second + 1) * 1000000000LL +
-                                        sm.ns * 20LL - 64 +
+      smtime_dynode[smigcell].push_back((sm.second + 1LL) * 1000000000LL +
+                                        sm.ns * 20LL - 64LL +
                                         sm.dynode_time * 20LL);
       if (IfCheckSmDisorder) { //  if we will store small pmt time disorder
                                //  data.
@@ -227,7 +227,7 @@ int main(int argc, char *argv[]) {
     b_y = bigpmty[b_fee_b][b_ch];
     b_anode_b = big.anode_charge;
     b_dynode_b = big.dynode_charge;
-    b_time_b = int(big.low_th_fine_time * 0.333) + big.coarse_time * 16 +
+    b_time_b = int(big.low_th_fine_time * 0.333) + big.coarse_time * 16LL +
                big.second * 1000000000LL;
     Double_t q0 = b_anode_b / 22.0;
     Double_t q1 = b_dynode_b / 0.50094; // 0.50094 = 0.726 * 0.69
