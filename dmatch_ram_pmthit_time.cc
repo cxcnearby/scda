@@ -176,8 +176,8 @@ int main(int argc, char *argv[]) {
       smpmt[smigcell].push_back(sm.pmt);
       smanode[smigcell].push_back(sm.anode_peak - sm.anode_ped);
       smdynode[smigcell].push_back(sm.dynode_peak - sm.dynode_ped);
-      smtime[smigcell].push_back((sm.second + 1LL) * 1000000000LL + sm.ns * 20LL -
-                                 64LL); // TODO
+      smtime[smigcell].push_back((sm.second + 1LL) * 1000000000LL +
+                                 sm.ns * 20LL - 64LL); // TODO
       smtime_anode[smigcell].push_back((sm.second + 1LL) * 1000000000LL +
                                        sm.ns * 20LL - 64LL +
                                        sm.anode_time * 20LL);
@@ -291,7 +291,7 @@ int main(int argc, char *argv[]) {
                 << "\r" << flush;
   }
   f_matchevents->Write();
-
+  f_matchevents->Close();
   finish = clock();
   std::cout << "big hits " << b_tot << " total time "
             << double((finish - start) / CLOCKS_PER_SEC) << " s" << endl;
