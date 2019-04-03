@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
   Long64_t b_entry_b, b_tot, b_time_b, b_deltatime_b;
   double_t b_npe_b;
   // big pmt
-  int th_dynode = 300; // threshold of big selection.
+  int th_dynode = 0; // threshold of big selection.
 
   Int_t b_fee_s, b_db, b_pmt, b_anode_s, b_dynode_s;
   Long64_t b_entry_s, b_time_s, b_deltatime_s, b_time_diff, b_time_anode,
@@ -227,7 +227,7 @@ int main(int argc, char *argv[]) {
     b_y = bigpmty[b_fee_b][b_ch];
     b_anode_b = big.anode_charge;
     b_dynode_b = big.dynode_charge;
-    b_time_b = big.low_th_fine_time * 0.333 + big.coarse_time * 16 +
+    b_time_b = int(big.low_th_fine_time * 0.333) + big.coarse_time * 16 +
                big.second * 1000000000LL;
     Double_t q0 = b_anode_b / 22.0;
     Double_t q1 = b_dynode_b / 0.50094; // 0.50094 = 0.726 * 0.69
