@@ -82,8 +82,8 @@ int main(int argc, char *argv[]) {
   Float_t b_x, b_y;
   Long64_t b_entry_b, b_tot, b_time_b, b_deltatime_b;
   double_t b_npe_b;
-  // big pmt
-  int th_dynode = 0; // threshold of big selection.
+  // big pmt  
+  int th_dynode = 300; // threshold of big selection.
 
   Int_t b_fee_s, b_db, b_pmt, b_anode_s, b_dynode_s;
   Long64_t b_entry_s, b_time_s, b_deltatime_s, b_time_diff, b_time_anode,
@@ -199,7 +199,7 @@ int main(int argc, char *argv[]) {
         lastbutone = smtime[smigcell].size() - 2;
         if (lastbutone < 0)
           lastbutone = 0;
-        b_deltatime_d = smtime[smigcell].back() - smtime[smigcell][lastbutone];
+        b_deltatime_d = smtime[smigcell][smtime[smigcell].size() - 1] - smtime[smigcell][smtime[smigcell].size() - 2];
         t_smdisorder->Fill();
       }
     }
