@@ -227,8 +227,8 @@ int main(int argc, char *argv[]) {
     b_y = bigpmty[b_fee_b][b_ch];
     b_anode_b = big.anode_charge;
     b_dynode_b = big.dynode_charge;
-    b_time_b = int(big.low_th_fine_time * 0.333) + big.coarse_time * 16LL +
-               big.second * 1000000000LL;
+    Long64_t bigns = big.low_th_fine_time * 0.333 + big.coarse_time * 16LL;
+    b_time_b = bigns + big.second * 1000000000LL;
     Double_t q0 = b_anode_b / 22.0;
     Double_t q1 = b_dynode_b / 0.50094; // 0.50094 = 0.726 * 0.69
     b_npe_b = q0;
