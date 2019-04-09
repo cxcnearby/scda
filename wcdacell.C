@@ -2,9 +2,9 @@
   FILE *fp_log;
   TChain *fChain; //! pointer to the analyzed TTree or TChain
   fChain = new TChain("tmatch");
-  fChain->Add("mcomb00.root");
+  fChain->Add("/output/mcomb00.root");
 
-  if ((fp_log = fopen("fitpars.txt", "w+")) == NULL) {
+  if ((fp_log = fopen("/outputfitpars.txt", "w+")) == NULL) {
     printf("cannot create log file\n");
     exit(0);
   }
