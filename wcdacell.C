@@ -2,9 +2,9 @@
   FILE *fp_log;
   TChain *fChain; //! pointer to the analyzed TTree or TChain
   fChain = new TChain("tmatch");
-  fChain->Add("mcomb00.root");
+  fChain->Add("mcomb07.root");
 
-  if ((fp_log = fopen("fitpars.txt", "w+")) == NULL) {
+  if ((fp_log = fopen("fitpars07.txt", "w+")) == NULL) {
     printf("cannot create log file\n");
     exit(0);
   }
@@ -111,7 +111,8 @@
   // TH1F *hh2[900];
   // TH1F *hh3[900];
   // TH1F *hh4[900];
-  int cellend = 900;
+  int cellstart = 0;
+  int cellend = 899;
 
   TF1 *f1 = new TF1("f1", "gaus");
   f1->SetLineColor(kRed);
@@ -130,29 +131,32 @@
 
   TCanvas *c1 = new TCanvas("c1", "c1", 1500, 700);
   // c1->Divide(2, 2);
-  for (int icell = 0; icell < cellend; icell++) {
+  for (int icell = cellstart; icell <= cellend; icell++) {
     c1->Update();
 
     // c1->cd(1);
     sprintf(buf1, "time_df_anode>>h1_%d", icell);
 
-    sprintf(buf2, "igcell==%d&&anode_s>0&&dynode_b>100", icell);
+    sprintf(buf2, "igcell==%d&&anode_s>0&&dynode_b>500", icell);
     fChain->Draw(buf1, buf2);
     sprintf(buf1, "h1_%d", icell);
 
     hh1[icell] = (TH1F *)gDirectory->Get(buf1);
     hh1[icell]->GetXaxis()->SetTitle("time_sm-time_big (ns) ");
 
+    if (hh1[icell]->Integral() == 0) continue;
+
     mean1[icell] = hh1[icell]->GetMean();
     rms1[icell] = hh1[icell]->GetRMS();
     hh1[icell]->Fit("f1", "", "", mean1[icell] - 2 * rms1[icell],
                     mean1[icell] + 2 * rms1[icell]);
     f1->GetParameters(&par[0]);
-    parerr[0]=f1->GetParError(0);
-    parerr[1]=f1->GetParError(1);
-    parerr[2]=f1->GetParError(2);
+    parerr[0] = f1->GetParError(0);
+    parerr[1] = f1->GetParError(1);
+    parerr[2] = f1->GetParError(2);
 
-    fprintf(fp_log,"%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\n",par[0],parerr[0],par[1],parerr[1],par[2],parerr[2]);
+    fprintf(fp_log, "%3d\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\n", icell,
+            par[0], parerr[0], par[1], parerr[1], par[2], parerr[2]);
 
     sprintf(buf1, "pic/cell_%03d.png", icell);
     c1->SaveAs(buf1);
