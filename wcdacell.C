@@ -20,7 +20,7 @@
   Float_t Y;
   Int_t anode_b;
   Int_t dynode_b;
-  Double_t npe_b;
+  Double_t npe_b; 
   Long64_t time_b;
   Long64_t deltatime_b;
   Long64_t entry_number_s;
