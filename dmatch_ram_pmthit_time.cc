@@ -56,6 +56,7 @@ std::vector<std::vector<long>> smtimedf(900); // small pmt
 
 int IfCheckSmDisorder = 1; // a switch to determine if we should check the
                            // disorder of small pmt events.
+int IfCheckBigDisorder = 0;
 
 void wcdapls::Loop() {}
 void wcdahits::Loop() {}
@@ -82,7 +83,7 @@ int main(int argc, char *argv[]) {
   Float_t b_x, b_y;
   Long64_t b_entry_b, b_tot, b_time_b, b_deltatime_b;
   double_t b_npe_b;
-  // big pmt  
+  // big pmt
   int th_dynode = 0; // threshold of big selection.
 
   Int_t b_fee_s, b_db, b_pmt, b_anode_s, b_dynode_s;
@@ -239,7 +240,12 @@ int main(int argc, char *argv[]) {
 
     int IfSearch = 1; // a sign to determine if we search for the first matching
                       // event. do only 1 time for a big event.
+    int IfSearchbig = 1;
     for (Long64_t i = stamp[b_igcell]; i < smfee[b_igcell].size(); i++) {
+      if (IfSearchbig && IfCheckBigDisorder && i >= 50) {
+        i = i - 50;
+        IfSearchbig = 0;
+      }
       b_time_s = smtime[b_igcell][i];
       b_time_diff = b_time_s - b_time_b;
       Long64_t i0 = i;
