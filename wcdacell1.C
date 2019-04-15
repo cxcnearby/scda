@@ -4,7 +4,7 @@
   fChain = new TChain("tmatch");
   fChain->Add("m0329.root");
 
-  if ((fp_log = fopen("2fitpars0329_600_50_df_anode.txt", "w+")) == NULL) {
+  if ((fp_log = fopen("2fitpars0329_600_50_df.txt", "w+")) == NULL) {
     printf("cannot create log file\n");
     exit(0);
   }
@@ -135,7 +135,7 @@
     c1->Update();
 
     // c1->cd(1);
-    sprintf(buf1, "time_df_anode>>h1_%d", icell);
+    sprintf(buf1, "time_df>>h1_%d", icell);
 
     sprintf(buf2, "igcell==%d&&anode_s>50&&dynode_b>600", icell);
     fChain->Draw(buf1, buf2);
@@ -154,11 +154,11 @@
     parerr[0] = f1->GetParError(0);
     parerr[1] = f1->GetParError(1);
     parerr[2] = f1->GetParError(2);
-    
+
     fprintf(fp_log, "%3d\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\n", icell,
             par[0], parerr[0], par[1], parerr[1], par[2], parerr[2]);
 
-    sprintf(buf1, "pic2/cell0329_600_50_df_anode_%03d.png", icell);
+    sprintf(buf1, "pic2/cell0329_600_50_df_%03d.png", icell);
     c1->SaveAs(buf1);
   }
   fclose(fp_log);

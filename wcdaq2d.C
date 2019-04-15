@@ -4,7 +4,7 @@
   fChain = new TChain("tmatch");
   fChain->Add("m0329.root");
 
-  if ((fp_log = fopen("2fitpars0329_600_50_df_anode.txt", "w+")) == NULL) {
+  if ((fp_log = fopen("fitpars0329_npe_b_npe_s.txt", "w+")) == NULL) {
     printf("cannot create log file\n");
     exit(0);
   }
@@ -20,7 +20,7 @@
   Float_t Y;
   Int_t anode_b;
   Int_t dynode_b;
-  Double_t npe_b; 
+  Double_t npe_b;
   Long64_t time_b;
   Long64_t deltatime_b;
   Long64_t entry_number_s;
@@ -107,58 +107,45 @@
   char buf2[500];
   char buf3[500];
 
-  TH1F *hh1[900];
-  // TH1F *hh2[900];
-  // TH1F *hh3[900];
-  // TH1F *hh4[900];
+  TH2F *hh1[900];
   int cellstart = 0;
   int cellend = 899;
 
-  TF1 *f1 = new TF1("f1", "gaus");
+  TF1 *f1 = new TF1("f1", "pol 1");
+  f1->FixParameter(0, 0.);
   f1->SetLineColor(kRed);
 
-  double rms1[900];
-  // double rms2[900];
-  // double rms3[900];
-  // double rms4[900];
-  double mean1[900];
-  // double mean2[900];
-  // double mean3[900];
-  // double mean4[900];
+  double par[2];
+  double parerr[2];
 
-  double par[3];
-  double parerr[3];
-
-  TCanvas *c1 = new TCanvas("c1", "c1", 1500, 700);
-  // c1->Divide(2, 2);
+  TCanvas *c1 = new TCanvas("c1", "c1", 1000, 700);
   for (int icell = cellstart; icell <= cellend; icell++) {
     c1->Update();
+    gPad->SetGridx();
+    gPad->SetGridy();
 
-    // c1->cd(1);
-    sprintf(buf1, "time_df_anode>>h1_%d", icell);
+    sprintf(buf1, "npe_b:npe_s>>hh1_%d", icell);
 
-    sprintf(buf2, "igcell==%d&&anode_s>50&&dynode_b>600", icell);
-    fChain->Draw(buf1, buf2);
-    sprintf(buf1, "h1_%d", icell);
+    sprintf(buf2, "igcell==%d&&dynode_b>100&&npe_s<400", icell);
+    fChain->Draw(buf1, buf2, "prof");
+    sprintf(buf1, "hh1_%d", icell);
 
-    hh1[icell] = (TH1F *)gDirectory->Get(buf1);
-    hh1[icell]->GetXaxis()->SetTitle("time_sm-time_big (ns) ");
+    hh1[icell] = (TH2F *)gDirectory->Get(buf1);
+    hh1[icell]->GetXaxis()->SetTitle("npe_s");
+    hh1[icell]->GetYaxis()->SetTitle("npe_b");
 
-    if (hh1[icell]->Integral() == 0) continue;
+    if (hh1[icell]->Integral() == 0)
+      continue;
 
-    mean1[icell] = hh1[icell]->GetMean();
-    rms1[icell] = hh1[icell]->GetRMS();
-    hh1[icell]->Fit("f1", "", "", mean1[icell] - 2 * rms1[icell],
-                    mean1[icell] + 2 * rms1[icell]);
+    hh1[icell]->Fit("f1", "", "", 0, 160);
     f1->GetParameters(&par[0]);
     parerr[0] = f1->GetParError(0);
     parerr[1] = f1->GetParError(1);
-    parerr[2] = f1->GetParError(2);
-    
-    fprintf(fp_log, "%3d\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\n", icell,
-            par[0], parerr[0], par[1], parerr[1], par[2], parerr[2]);
 
-    sprintf(buf1, "pic2/cell0329_600_50_df_anode_%03d.png", icell);
+    fprintf(fp_log, "%3d\t%9.3f\t%9.3f\t%9.3f\t%9.3f\n", icell, par[0],
+            parerr[0], par[1], parerr[1]);
+
+    sprintf(buf1, "pic2/cell0329_npe_b_npe_s_%03d.png", icell);
     c1->SaveAs(buf1);
   }
   fclose(fp_log);
