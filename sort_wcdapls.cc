@@ -85,6 +85,21 @@ void wcdapls::Loop() {
     hits.deltatime = tmp - temptime[smpmtig_jd[fee][db][pmt]];
     temptime[smpmtig_jd[fee][db][pmt]] = tmp;
     data.push_back(hits);
+    //   if we want to print the disordered hits, it should not be commented.
+    if (hits.deltatime < 0) {
+      for (int i = data.size() - 2; i != 0; i--) {
+        s_wcdapls tmphits = data[i];
+        if (tmphits.fee == hits.fee && tmphits.db == hits.db &&
+            tmphits.pmt == hits.pmt) {
+          cout << hits.entry << " " << hits.fee << " " << hits.db << " "
+               << hits.pmt << " " << hits.second << " " << hits.ns << " "
+               << hits.deltatime << " " << tmphits.entry << " "
+               << tmphits.second << " " << tmphits.ns << endl;
+          break;
+        }
+      }
+    }
+    //   if we want to print the disordered hits, it should not be commented.
   }
 }
 
