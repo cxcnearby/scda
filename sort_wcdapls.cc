@@ -9,6 +9,10 @@
 
 using namespace std;
 
+double smpmtx_jd[26][4][17];
+double smpmty_jd[26][4][17];
+int smpmtig_jd[26][4][17];
+
 struct s_wcdapls {
   UInt_t fUniqueID;
   UInt_t fBits;
@@ -29,10 +33,15 @@ struct s_wcdapls {
   UInt_t tail;
   UInt_t l1id;
   Int_t dt;
+  Long64_t
+      entry; // add by myselt to give a number for each hit to check disorder.
+  Long64_t deltatime; // add by myself to check disorder.
 };
 
 vector<s_wcdapls> data;
 s_wcdapls hits;
+
+Long64_t temptime[900] = {0};
 
 bool comp(s_wcdapls a, s_wcdapls b) {
   if (a.second == b.second)
@@ -71,49 +80,87 @@ void wcdapls::Loop() {
     hits.tail = tail;
     hits.l1id = l1id;
     hits.dt = dt;
+    hits.entry = jentry;
+    Long64_t tmp = second * 1000000000LL + ns * 20LL;
+    hits.deltatime = tmp - temptime[smpmtig_jd[fee][db][pmt]];
+    temptime[smpmtig_jd[fee][db][pmt]] = tmp;
     data.push_back(hits);
   }
 }
 
 int main(int argc, char *argv[]) {
+#include "smpmtpos.h"
 
-  if (argc < 4) {
-    std::cout << argv[0] << " spath sfile sorted.root" << endl;
+  if (argc < 5) {
+    std::cout << argv[0] << "  spath  sfile  sorted.root  Ifcheck(0no/1yes)"
+              << endl;
     exit(0);
   }
   clock_t start, finish;
   start = clock();
 
   string spath = argv[1], sfile = argv[2], sortedfile = argv[3];
+  int Ifcheck = atoi(argv[4]);
 
   wcdapls sm(spath, sfile);
 
   sm.Loop();
 
-  sort(data.begin(), data.end(), comp);
-
   TFile *f_sorted = new TFile(sortedfile.c_str(), "recreate");
   TTree *t = new TTree("wcdapls", "sorted events");
+  TTree *t_c = new TTree("check", "tree_for_time_check");
 
-  t->Branch("fUniqueID", &hits.fUniqueID, "b_fUniqueID/l");
-  t->Branch("fBits", &hits.fBits, "b_fBits/l");
-  t->Branch("fee", &hits.fee, "b_fee/l");
-  t->Branch("flag", &hits.flag, "b_flag/l");
-  t->Branch("bdb", &hits.bdb, "b_bdb/l");
-  t->Branch("db", &hits.db, "b_db/l");
-  t->Branch("pmt", &hits.pmt, "b_pmt/l");
+  t_c->Branch("fUniqueID", &hits.fUniqueID, "b_fUniqueID/i");
+  t_c->Branch("fBits", &hits.fBits, "b_fBits/i");
+  t_c->Branch("fee", &hits.fee, "b_fee/i");
+  t_c->Branch("flag", &hits.flag, "b_flag/i");
+  t_c->Branch("bdb", &hits.bdb, "b_bdb/i");
+  t_c->Branch("db", &hits.db, "b_db/i");
+  t_c->Branch("pmt", &hits.pmt, "b_pmt/i");
+  t_c->Branch("time", &hits.time, "b_time/l");
+  t_c->Branch("second", &hits.second, "b_second/i");
+  t_c->Branch("ns", &hits.ns, "b_ns/i");
+  t_c->Branch("anode_peak", &hits.anode_peak, "b_anode_peak/i");
+  t_c->Branch("anode_ped", &hits.anode_ped, "b_anode_ped/i");
+  t_c->Branch("anode_time", &hits.anode_time, "b_anode_time/i");
+  t_c->Branch("dynode_peak", &hits.dynode_peak, "b_dynode_peak/i");
+  t_c->Branch("dynode_ped", &hits.dynode_ped, "b_dynode_ped/i");
+  t_c->Branch("dynode_time", &hits.dynode_time, "b_dynode_time/i");
+  t_c->Branch("tail", &hits.tail, "b_tail/i");
+  t_c->Branch("l1id", &hits.l1id, "b_l1id/i");
+  t_c->Branch("dt", &hits.dt, "b_dt/I");
+  t_c->Branch("entry", &hits.entry, "b_entry/L");
+  t_c->Branch("deltatime", &hits.deltatime, "b_deltatime/L");
+
+  t->Branch("fUniqueID", &hits.fUniqueID, "b_fUniqueID/i");
+  t->Branch("fBits", &hits.fBits, "b_fBits/i");
+  t->Branch("fee", &hits.fee, "b_fee/i");
+  t->Branch("flag", &hits.flag, "b_flag/i");
+  t->Branch("bdb", &hits.bdb, "b_bdb/i");
+  t->Branch("db", &hits.db, "b_db/i");
+  t->Branch("pmt", &hits.pmt, "b_pmt/i");
   t->Branch("time", &hits.time, "b_time/l");
-  t->Branch("second", &hits.second, "b_second/l");
-  t->Branch("ns", &hits.ns, "b_ns/l");
-  t->Branch("anode_peak", &hits.anode_peak, "b_anode_peak/l");
-  t->Branch("anode_ped", &hits.anode_ped, "b_anode_ped/l");
-  t->Branch("anode_time", &hits.anode_time, "b_anode_time/l");
-  t->Branch("dynode_peak", &hits.dynode_peak, "b_dynode_peak/l");
-  t->Branch("dynode_ped", &hits.dynode_ped, "b_dynode_ped/l");
-  t->Branch("dynode_time", &hits.dynode_time, "b_dynode_time/l");
-  t->Branch("tail", &hits.tail, "b_tail/l");
-  t->Branch("l1id", &hits.l1id, "b_l1id/l");
-  t->Branch("dt", &hits.dt, "b_dt/l");
+  t->Branch("second", &hits.second, "b_second/i");
+  t->Branch("ns", &hits.ns, "b_ns/i");
+  t->Branch("anode_peak", &hits.anode_peak, "b_anode_peak/i");
+  t->Branch("anode_ped", &hits.anode_ped, "b_anode_ped/i");
+  t->Branch("anode_time", &hits.anode_time, "b_anode_time/i");
+  t->Branch("dynode_peak", &hits.dynode_peak, "b_dynode_peak/i");
+  t->Branch("dynode_ped", &hits.dynode_ped, "b_dynode_ped/i");
+  t->Branch("dynode_time", &hits.dynode_time, "b_dynode_time/i");
+  t->Branch("tail", &hits.tail, "b_tail/i");
+  t->Branch("l1id", &hits.l1id, "b_l1id/i");
+  t->Branch("dt", &hits.dt, "b_dt/I");
+
+  if (Ifcheck) {
+    for (auto &v : data) {
+      hits = v;
+      t_c->Fill();
+    }
+  }
+
+  sort(data.begin(), data.end(), comp);
+
   for (auto &v : data) {
     hits = v;
     t->Fill();
