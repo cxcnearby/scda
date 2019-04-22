@@ -54,9 +54,9 @@ std::vector<std::vector<long>> smtime_anode(900);
 std::vector<std::vector<long>> smtime_dynode(900);
 std::vector<std::vector<long>> smtimedf(900); // small pmt
 
-int IfCheckSmDisorder = 1; // a switch to determine if we should check the
-                           // disorder of small pmt events.
-int IfCheckBigDisorder = 0;
+// int IfCheckSmDisorder = 1; // a switch to determine if we should check the
+//                            // disorder of small pmt events.
+// int IfCheckBigDisorder = 0;
 
 void wcdapls::Loop() {}
 void wcdahits::Loop() {}
@@ -141,22 +141,22 @@ int main(int argc, char *argv[]) {
   t_match->Branch("time_df_dynode", &b_time_diff_dynode,
                   "b_time_dynode - b_time_b /L");
 
-  Int_t b_igcell_d, b_fee_d, b_db_d, b_pmt_d, b_anode_d, b_dynode_d;
-  Long64_t b_entry_d, b_tot_d = 0, b_time_d, b_deltatime_d;
-  TTree *t_smdisorder = new TTree(
-      "tsm",
-      "small event disorder: T_i - T_i-1"); // this tree is to store small pmt
-                                            // time disorder data.
-  t_smdisorder->Branch("entry", &b_entry_d, "b_entry /L");
-  t_smdisorder->Branch("total", &b_tot_d, "b_total /L");
-  t_smdisorder->Branch("igcell", &b_igcell_d, "b_igcell/I");
-  t_smdisorder->Branch("fee", &b_fee_d, "b_fee/I");
-  t_smdisorder->Branch("db", &b_db_d, "b_db/I");
-  t_smdisorder->Branch("pmt", &b_pmt_d, "b_pmt/I");
-  t_smdisorder->Branch("anode", &b_anode_d, "b_anode/I");
-  t_smdisorder->Branch("dynode", &b_dynode_d, "b_dynode/I");
-  t_smdisorder->Branch("time", &b_time_d, "b_time/L");
-  t_smdisorder->Branch("deltatime", &b_deltatime_d, "T_i - T_i-1 /L");
+  // Int_t b_igcell_d, b_fee_d, b_db_d, b_pmt_d, b_anode_d, b_dynode_d;
+  // Long64_t b_entry_d, b_tot_d = 0, b_time_d, b_deltatime_d;
+  // TTree *t_smdisorder = new TTree(
+  //     "tsm",
+  //     "small event disorder: T_i - T_i-1"); // this tree is to store small pmt
+  //                                           // time disorder data.
+  // t_smdisorder->Branch("entry", &b_entry_d, "b_entry /L");
+  // t_smdisorder->Branch("total", &b_tot_d, "b_total /L");
+  // t_smdisorder->Branch("igcell", &b_igcell_d, "b_igcell/I");
+  // t_smdisorder->Branch("fee", &b_fee_d, "b_fee/I");
+  // t_smdisorder->Branch("db", &b_db_d, "b_db/I");
+  // t_smdisorder->Branch("pmt", &b_pmt_d, "b_pmt/I");
+  // t_smdisorder->Branch("anode", &b_anode_d, "b_anode/I");
+  // t_smdisorder->Branch("dynode", &b_dynode_d, "b_dynode/I");
+  // t_smdisorder->Branch("time", &b_time_d, "b_time/L");
+  // t_smdisorder->Branch("deltatime", &b_deltatime_d, "T_i - T_i-1 /L");
 
   //  put small data into RAM.
   if (sm.fChain == 0)
@@ -185,24 +185,24 @@ int main(int argc, char *argv[]) {
       smtime_dynode[smigcell].push_back((sm.second + 1LL) * 1000000000LL +
                                         sm.ns * 20LL - 64LL +
                                         sm.dynode_time * 20LL);
-      if (IfCheckSmDisorder) { //  if we will store small pmt time disorder
-                               //  data.
-        b_tot_d++;
-        b_entry_d = smentry[smigcell].back();
-        b_igcell_d = smpmtig_jd[smfee[smigcell].back()][smdb[smigcell].back()]
-                               [smpmt[smigcell].back()];
-        b_fee_d = smfee[smigcell].back();
-        b_db_d = smdb[smigcell].back();
-        b_pmt_d = smpmt[smigcell].back();
-        b_anode_d = smanode[smigcell].back();
-        b_dynode_d = smdynode[smigcell].back();
-        b_time_d = smtime[smigcell].back();
-        lastbutone = smtime[smigcell].size() - 2;
-        if (lastbutone < 0)
-          lastbutone = 0;
-        b_deltatime_d = smtime[smigcell].back() - smtime[smigcell][lastbutone];
-        t_smdisorder->Fill();
-      }
+      // if (IfCheckSmDisorder) { //  if we will store small pmt time disorder
+      //                          //  data.
+      //   b_tot_d++;
+      //   b_entry_d = smentry[smigcell].back();
+      //   b_igcell_d = smpmtig_jd[smfee[smigcell].back()][smdb[smigcell].back()]
+      //                          [smpmt[smigcell].back()];
+      //   b_fee_d = smfee[smigcell].back();
+      //   b_db_d = smdb[smigcell].back();
+      //   b_pmt_d = smpmt[smigcell].back();
+      //   b_anode_d = smanode[smigcell].back();
+      //   b_dynode_d = smdynode[smigcell].back();
+      //   b_time_d = smtime[smigcell].back();
+      //   lastbutone = smtime[smigcell].size() - 2;
+      //   if (lastbutone < 0)
+      //     lastbutone = 0;
+      //   b_deltatime_d = smtime[smigcell].back() - smtime[smigcell][lastbutone];
+      //   t_smdisorder->Fill();
+      // }
     }
   }
 
@@ -240,12 +240,12 @@ int main(int argc, char *argv[]) {
 
     int IfSearch = 1; // a sign to determine if we search for the first matching
                       // event. do only 1 time for a big event.
-    int IfSearchbig = 1;
+    // int IfSearchbig = 1;
     for (Long64_t i = stamp[b_igcell]; i < smfee[b_igcell].size(); i++) {
-      if (IfSearchbig && IfCheckBigDisorder && i >= 50) {
-        i = i - 50;
-        IfSearchbig = 0;
-      }
+      // if (IfSearchbig && IfCheckBigDisorder && i >= 50) {
+      //   i = i - 50;
+      //   IfSearchbig = 0;
+      // }
       b_time_s = smtime[b_igcell][i];
       b_time_diff = b_time_s - b_time_b;
       Long64_t i0 = i;
