@@ -93,6 +93,8 @@
   }
   duration /= 1000000000LL;
   printf("duration = %lld s\n", duration);
+  if (duration == 0)
+    exit(0);
 
   char buf1[500], buf2[500];
 
