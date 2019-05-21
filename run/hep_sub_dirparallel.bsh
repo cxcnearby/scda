@@ -3,7 +3,7 @@
 bpath=/eos/daocheng/user/w/wcdarec/wcda/data
 spath=/eos/daocheng/user/w/wcdapls/decode/decoded_root
 opath=/eos/daocheng/user/w/wcdapls/changxc/output/scda/auto
-BshName=/eos/daocheng/user/w/wcdapls/changxc/runscript/matchparallel_sort.bsh
+BshName=/eos/daocheng/user/w/wcdapls/changxc/scda/run/matchparallel_sort.bsh
 TmpBshDir=/eos/daocheng/user/w/wcdapls/changxc/tmp_sub
 tmpdir=Hmatch`date "+%y%m%d%H%M"`
 
