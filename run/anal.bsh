@@ -1,0 +1,8 @@
+#!/bin/bash
+
+mPath=ConfigmPath
+
+cd $mPath
+source /eos/daocheng/user/w/wcdapls/changxc/env.sh
+
+root -l -b -q anal.C

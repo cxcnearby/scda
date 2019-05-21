@@ -1,0 +1,46 @@
+#!/bin/bash
+mpath=/eos/daocheng/user/w/wcdapls/changxc/output/auto
+BshName=/eos/daocheng/user/w/wcdapls/changxc/runscript/anal.bsh
+TmpBshDir=/eos/daocheng/user/w/wcdapls/changxc/tmp_sub
+CName=anal.C
+tmpdir=anal
+
+if [ $# -ne 2 ]; then
+    echo "year date (like "2019 0314")"
+else
+    year=$1
+    date=$2
+
+    mpath=$mpath/$year/$date
+    if [ $(ls ${mpath} | wc -l) -eq 0 ]; then
+        echo "empty directory!"
+        exit 0
+    fi
+
+    if [ -e "$mpath/$CName" ]; then
+        read -t 30 -n 1 -p "anal.C exists, press \"y\" to OVERWRITE or else to exit: " ans
+        # ans = "y"    # for auto overwriting! COMMIT PREVIOUS LINE!
+        case "$ans" in
+        y | Y)
+            echo -e "\noverwrite!"
+            rm -f $mpath/$CName
+            ;;
+        *)
+            echo -e "\nexit!"
+            exit 0
+            ;;
+        esac
+    fi
+
+    cp -f "$CName" "$mpath/$CName"
+
+    SubName=$(basename $BshName .bsh)${year}${date}
+    mkdir -p $TmpBshDir/$tmpdir
+    rm -rf $TmpBshDir/$tmpdir/${SubName}.bsh
+    cp -rf $BshName $TmpBshDir/$tmpdir/${SubName}.bsh
+    chmod 755 $TmpBshDir/$tmpdir/${SubName}.bsh
+    sed -i -e 's#ConfigmPath#'$mpath'#g' $TmpBshDir/$tmpdir/${SubName}.bsh
+
+    /afs/ihep.ac.cn/soft/common/sysgroup/hep_job/bin/hep_sub -site daocheng -g lhaasorun -os SL7 $TmpBshDir/$tmpdir/${SubName}.bsh
+fi
+exit 0
