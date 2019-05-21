@@ -2,8 +2,8 @@
 
 bpath=/eos/daocheng/user/w/wcdarec/wcda/data
 spath=/eos/daocheng/user/w/wcdapls/decode/decoded_root
-opath=/eos/daocheng/user/w/wcdapls/changxc/output/auto
-BshName=/eos/daocheng/user/w/wcdapls/changxc/runscript/match_sort.bsh
+opath=/eos/daocheng/user/w/wcdapls/changxc/output/scda/auto
+BshName=/eos/daocheng/user/w/wcdapls/changxc/scda/run/match_sort.bsh
 TmpBshDir=/eos/daocheng/user/w/wcdapls/changxc/tmp_sub
 tmpdir=Hmatch`date "+%y%m%d%H%M"`
 

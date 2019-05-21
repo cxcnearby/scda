@@ -1,5 +1,5 @@
 #!/bin/bash
-DataDir=/eos/daocheng/user/w/wcdapls/changxc/output/auto/2019
+DataDir=/eos/daocheng/user/w/wcdapls/changxc/output/scda/auto/2019
 
 for DayDir in $(ls ${DataDir}); do
     echo $DayDir

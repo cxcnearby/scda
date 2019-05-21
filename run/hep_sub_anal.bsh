@@ -1,6 +1,6 @@
 #!/bin/bash
-mpath=/eos/daocheng/user/w/wcdapls/changxc/output/auto
-BshName=/eos/daocheng/user/w/wcdapls/changxc/runscript/anal.bsh
+mpath=/eos/daocheng/user/w/wcdapls/changxc/output/scda/auto
+BshName=/eos/daocheng/user/w/wcdapls/changxc/scda/run/anal.bsh
 TmpBshDir=/eos/daocheng/user/w/wcdapls/changxc/tmp_sub
 CName=anal.C
 tmpdir=anal
