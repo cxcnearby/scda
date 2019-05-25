@@ -1,0 +1,14 @@
+#!/bin/bash
+
+ExeDir=/eos/daocheng/user/w/wcdapls/changxc/scda
+
+bPath=ConfigbPath
+bFile=ConfigbFile
+sPath=ConfigsPath
+sFile=ConfigsFile
+oFile=ConfigoFile
+
+cd $ExeDir
+source /eos/daocheng/user/w/wcdapls/changxc/env.sh
+
+./dmatch_ram_pmthit_time.exe ${bPath} ${bFile} ${sPath} ${sFile} ${oFile}

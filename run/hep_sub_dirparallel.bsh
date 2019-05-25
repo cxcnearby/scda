@@ -1,0 +1,105 @@
+#!/bin/bash
+
+bpath=/eos/daocheng/user/w/wcdarec/wcda/data
+spath=/eos/daocheng/user/w/wcdapls/decode/decoded_root
+opath=/eos/daocheng/user/w/wcdapls/changxc/output/scda/auto
+BshName=/eos/daocheng/user/w/wcdapls/changxc/scda/run/matchparallel_sort.bsh
+TmpBshDir=/eos/daocheng/user/w/wcdapls/changxc/tmp_sub
+tmpdir=Hmatch`date "+%y%m%d%H%M"`
+
+runlog=/eos/daocheng/user/w/wcdarec/wcda/daq/mode_run.txt
+runid=($(awk '$2 ~ /SH[0-9]+\>/ && $3 !~ /[[:alnum:]]/ {print $1}' ${runlog}))
+
+if [ $# -ne 2 ]; then
+    echo "year date (like "2019 0314")"
+else
+    year=$1
+    date=$2
+
+    opath=$opath/$year/$date
+
+    if [ -d "$opath" ]; then
+        read -t 30 -n 1 -p "Date directory exists, press \"y\" to OVERWRITE or else to exit: " ans
+        # ans = "y"    # for auto overwriting! COMMIT PREVIOUS LINE!
+        case "$ans" in
+        y | Y)
+            echo -e "\noverwrite!"
+            rm -f $opath/*
+            ;;
+        *)
+            echo -e "\nexit!"
+            exit 0
+            ;;
+        esac
+    else
+        mkdir -p "$opath"
+    fi
+
+    # compare between bfile and sfile
+    # record bfile name of wcda
+    btime=${year}/${date}
+    bfull=$bpath/$btime
+    stime=${year}${date}
+    sfull=$spath/$stime
+    echo $bfull
+    echo $sfull # full path of wcda/wcdapp file
+
+    if [[ ! -d "$bfull" || ! -d "$sfull" ]]; then
+        echo "${bfull} or ${sfull} does not exist!"
+        exit 0 # judge if the corresponding day of wcdapp exists
+    fi
+
+    lineall=$(ls -1 $bfull/*FULL*.root | wc -l)
+    linenow=1
+
+    for bf in $(ls -1 $bfull/*FULL*.root); do
+        echo -ne "$linenow/$lineall\r"
+        ((linenow++))
+
+        bf=$(basename $bf)
+        bt=${bf#*$stime}
+        bh=${bt:0:2}
+        bm=${bt:2:2}
+        bs=${bt:4:2}
+
+        brunid=${bf:3:5}
+        highth=0
+
+        for item in ${runid[@]}; do
+            if [ $brunid -eq $item ]; then
+                highth=1
+            fi
+        done
+
+        if [ $highth -eq 0 ]; then
+            continue
+        fi
+
+        for sf in $(ls -1 $sfull/*FULL*.root); do
+            sf=$(basename $sf)
+            st=${sf#*$stime}
+            sh=${st:0:2}
+            sm=${st:2:2}
+            ss=${st:4:2}
+            diff=$(echo "($bh-$sh)*60+($bm-$sm)" | bc)
+            if [[ $diff -lt 40 && $diff -ge 0 ]]; then
+                oFile=$opath/match_${bf}_${sf}.root
+                echo "$bf  $sf" >>$opath/filematched.txt
+                echo "$bfull  $bf  $sfull  $sf  $oFile" >>$opath/filematched.tmp
+            fi
+        done
+    done
+    SubName=$(basename $BshName .bsh)_${year}_${date} # submission name
+    mkdir -p $TmpBshDir/$tmpdir                                                                                                   # create a temp folder to save job .bsh files
+    rm -rf $TmpBshDir/$tmpdir/${SubName}.bsh                                                                                       # remove possibly existed temp files
+    cp -rf ${BshName} $TmpBshDir/$tmpdir/${SubName}.bsh                                                                        # make a temp copy of the .bsh file
+    chmod 755 $TmpBshDir/$tmpdir/${SubName}.bsh                                                                                    # change file permission to allow execute
+    cat $opath/filematched.tmp | xargs -i -P 0 /afs/ihep.ac.cn/soft/common/sysgroup/hep_job/bin/hep_sub -site daocheng -g lhaasorun -os SL7 $TmpBshDir/$tmpdir/${SubName}.bsh -argu {}  # submit job!!!
+    rm -rf $opath/filematched.tmp
+    echo $year $date submitted                                                                                             # to show off~
+# output number of bfile
+#    echo ${#bfile[@]}; sleep 3s
+# output each bfile
+#    for i in ${bfile[@]}; do echo $i; done; sleep 1s
+fi
+exit 0

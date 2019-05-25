@@ -45,7 +45,7 @@ std::vector<std::vector<int>> smdynode(900);
 std::vector<std::vector<long>> smtime(900);
 std::vector<std::vector<long>> smtimedf(900); // small pmt
 
-void wcdaevent::Loop0() {}
+void wcdaevent::Loop() {}
 
 void wcdaevent::Loop() {
 #include "bigpmtpos.h"

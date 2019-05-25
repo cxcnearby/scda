@@ -1,0 +1,8 @@
+#!/bin/bash
+
+ExeDir=/eos/daocheng/user/w/wcdapls/changxc/scda
+
+cd $ExeDir
+source /eos/daocheng/user/w/wcdapls/changxc/env.sh
+
+./dmatch_ram_pmthit_time.exe $1 $2 $3 $4 $5

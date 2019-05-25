@@ -2,9 +2,10 @@
   FILE *fp_log;
   TChain *fChain; //! pointer to the analyzed TTree or TChain
   fChain = new TChain("tmatch");
-  fChain->Add("m0329.root");
+  fChain->Add("/home/changxc/mywork/code/repo/scda/drawing/"
+              "test21_26_27_28_29_30.root");
 
-  if ((fp_log = fopen("2fitpars0329_600_50_df.txt", "w+")) == NULL) {
+  if ((fp_log = fopen("fitpars050601.txt", "w+")) == NULL) {
     printf("cannot create log file\n");
     exit(0);
   }
@@ -107,10 +108,12 @@
   char buf2[500];
   char buf3[500];
 
-  TH1F *hh1[900];
+  //TH1F *hh1[900];
   // TH1F *hh2[900];
   // TH1F *hh3[900];
   // TH1F *hh4[900];
+  TH1F *h1 = new TH1F("h1", "h1", 500, 0, 500);
+
   int cellstart = 0;
   int cellend = 899;
 
@@ -135,21 +138,23 @@
     c1->Update();
 
     // c1->cd(1);
-    sprintf(buf1, "time_df>>h1_%d", icell);
+    sprintf(buf1, "dynode_b>>h1");
 
-    sprintf(buf2, "igcell==%d&&anode_s>50&&dynode_b>600", icell);
+    sprintf(buf2, "igcell==%d", icell);
     fChain->Draw(buf1, buf2);
-    sprintf(buf1, "h1_%d", icell);
 
-    hh1[icell] = (TH1F *)gDirectory->Get(buf1);
-    hh1[icell]->GetXaxis()->SetTitle("time_sm-time_big (ns) ");
+  //  h1 = (TH1F *)gDirectory->Get(buf1);
+    h1->GetXaxis()->SetTitle("anode_b");
+    h1->SetTitle(buf2);
 
-    if (hh1[icell]->Integral() == 0) continue;
-
-    mean1[icell] = hh1[icell]->GetMean();
-    rms1[icell] = hh1[icell]->GetRMS();
-    hh1[icell]->Fit("f1", "", "", mean1[icell] - 2 * rms1[icell],
-                    mean1[icell] + 2 * rms1[icell]);
+    if (h1->Integral() == 0) continue;
+int maxbin = 0;
+    for (int i = 50; i<=500; i++){
+      if (h1->GetBinContent(i) > h1->GetBinContent(maxbin))
+        maxbin = i;
+    }
+    fprintf(fp_log,"%d",maxbin);
+    h1->Fit("f1", "", "", maxbin - 30, maxbin + 30);
     f1->GetParameters(&par[0]);
     parerr[0] = f1->GetParError(0);
     parerr[1] = f1->GetParError(1);
@@ -158,7 +163,7 @@
     fprintf(fp_log, "%3d\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\n", icell,
             par[0], parerr[0], par[1], parerr[1], par[2], parerr[2]);
 
-    sprintf(buf1, "pic2/cell0329_600_50_df_%03d.png", icell);
+    sprintf(buf1, "pic050501/cell0329_%03d.png", icell);
     c1->SaveAs(buf1);
   }
   fclose(fp_log);
