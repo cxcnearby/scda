@@ -42,3 +42,4 @@ lxr
 pic/
 pic2/
 *.root
+.vscode/settings.json
