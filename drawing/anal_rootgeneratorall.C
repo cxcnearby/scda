@@ -15,7 +15,7 @@ void anal_rootgeneratorall() {
   //       y1[i]=i+1;
   //   }
   //   const int ylength = sizeof(y1)/sizeof(int);
-  TFile *f = new TFile("anal.root", "RECREATE");
+  TFile *f = new TFile("analall.root", "RECREATE");
   TTree *T = new TTree("anal", "data from file");
   T->ReadFile(
       "/home/changxc/mywork/code/repo/scda/output/auto/allcombtest.txt",
@@ -26,16 +26,19 @@ void anal_rootgeneratorall() {
   T->Write();
 
   TH2F *hh1[datelength];
-  TH2F *ha1[900];
+  TH2F *ha1;
   TH2F *hh2[datelength];
+  TH2F *ha2;
   TH2F *hh3[datelength];
+  TH2F *ha3;
+
   char buf1[500];
   char buf2[500];
   char buf3[500];
   int color[10] = {1, 2, 3, 4, 5, 6, 7, 14, 28, 50};
 
   TCanvas *c1 = new TCanvas("c1", "c1title", 1500, 700);
-  //  gStyle->SetPalette(100);
+  gStyle->SetPalette(1);
 
   for (int day = 0; day < datelength; day++) {
     sprintf(buf1, "time_df_anode_p2:igcell>>hh1_%d(4500,0,900,1500,0,3000)",
@@ -51,7 +54,7 @@ void anal_rootgeneratorall() {
   hh1[0]->Draw();
   hh1[0]->SetStats(0);
   hh1[0]->SetTitle("time_df_anode_p2:igcell");
-  TLegend *leg1 = new TLegend(.15, 0.15, 0.85, 0.35, "date");
+  TLegend *leg1 = new TLegend(.2, 0.15, 0.8, 0.35, "date");
   sprintf(buf1, "0%d", date[0]);
   leg1->AddEntry(hh1[0], buf1, "p");
   for (int day = 1; day < datelength; day++) {
@@ -61,84 +64,120 @@ void anal_rootgeneratorall() {
   }
   leg1->SetNColumns(15);
   leg1->Draw();
+  sprintf(buf1, "pictest/time_df_anode_p2:igcell.png");
+  c1->SaveAs(buf1);
 
+
+  TCanvas *c1a = new TCanvas("c1a", "c1atitle", 1500, 700);
 
   for (int icell = 0; icell < 900; icell++) {
-    sprintf(buf1, "time_df_anode_p2:date>>ha1_%d(4500,0,900,1500,0,3000)",
-            icell);
+    sprintf(buf1, "time_df_anode_p2:date>>ha1(201,301,502,1500,0,3000)");
     sprintf(buf2, "igcell==%d", icell);
     T->Draw(buf1, buf2);
-    sprintf(buf1, "ha1_%d", icell);
-    ha1[icell] = (TH2F *)gDirectory->Get(buf1);
-    ha1[icell]->SetMarkerStyle(8);
-    ha1[icell]->SetMarkerSize(0.5);
-    ha1[icell]->SetMarkerColor(icell);
+    sprintf(buf1, "ha1");
+    ha1 = (TH2F *)gDirectory->Get(buf1);
+    ha1->SetMarkerStyle(4);
+    ha1->SetMarkerSize(1);
+    ha1->SetMarkerColor(2);
+    ha1->Draw();
+    ha1->SetStats(0);
+    sprintf(buf1, "time_df_anode_p2:date_%03d", icell);
+    ha1->SetTitle(buf1);
+    sprintf(buf1, "pictest/time_df_anode/time_df_anode_p2:date_%03d.png", icell);
+    c1a->SaveAs(buf1);
   }
-  ha1[0]->Draw();
-  ha1[0]->SetStats(0);
-  ha1[0]->SetTitle("time_df_anode_p2:date");
-  TLegend *leg2 = new TLegend(.15, 0.15, 0.85, 0.35, "date");
+
+  TCanvas *c2 = new TCanvas("c2", "c2title", 1500, 700);
+  for (int day = 0; day < datelength; day++) {
+    sprintf(buf1, "rate:igcell>>hh2_%d(4500,0,900,1000,0,20)",  date[day]);
+    sprintf(buf2, "date==%d",  date[day]);
+    T->Draw(buf1, buf2);
+    sprintf(buf1, "hh2_%d",  date[day]);
+    hh2[day] = (TH2F *)gDirectory->Get(buf1);
+    hh2[day]->SetMarkerStyle(8);
+    hh2[day]->SetMarkerSize(0.5);
+    hh2[day]->SetMarkerColor(day);
+  }
+  hh2[0]->Draw();
+  hh2[0]->SetStats(0);
+  hh2[0]->SetTitle("rate:igcell");
+  TLegend *leg2 = new TLegend(0.3, 0.7, 0.9, 0.9, "date");
   sprintf(buf1, "0%d", date[0]);
-  leg2->AddEntry(ha1[0], buf1, "p");
-  for (int icell = 1; icell < 900; icell++) {
-    ha1[icell]->Draw("same");
-    sprintf(buf1, "0%d", icell);
-    leg2->AddEntry(ha1[icell], buf1, "p");
+  leg2->AddEntry(hh2[0], buf1, "p");
+  for (int day = 1; day < datelength; day++) {
+    hh2[day]->Draw("same");
+    sprintf(buf1, "0%d", date[day]);
+    leg2->AddEntry(hh2[day], buf1, "p");
   }
   leg2->SetNColumns(15);
   leg2->Draw();
+  sprintf(buf1, "pictest/rate:igcell.png");
+  c2->SaveAs(buf1);
 
-  /*   TCanvas *c2 = new TCanvas("c2", "c2title", 1500, 700);
-    for (int date = 20; date <= 29; date++) {
-      sprintf(buf1, "rate:igcell>>hh2_%d(4500,0,900,1000,0,20)", date);
-      sprintf(buf2, "date==%d", date);
-      T->Draw(buf1, buf2);
-      sprintf(buf1, "hh2_%d", date);
-      hh2[date] = (TH2F *)gDirectory->Get(buf1);
-      hh2[date]->SetMarkerStyle(8);
-      hh2[date]->SetMarkerSize(0.5);
-      hh2[date]->SetMarkerColor(color[date - 20]);
-    }
-    hh2[20]->Draw();
-    hh2[20]->SetStats(0);
-    hh2[20]->SetTitle("rate:igcell");
-    TLegend *leg2 = new TLegend(.85, .65, .95, .95);
-    sprintf(buf1, "0320");
-    leg2->AddEntry(hh2[20], buf1, "p");
-    for (int date = 21; date <= 29; date++) {
-      hh2[date]->Draw("same");
-      sprintf(buf1, "03%d", date);
-      leg2->AddEntry(hh2[date], buf1, "p");
-    }
-    leg2->Draw();
 
-    TCanvas *c3 = new TCanvas("c3", "c3title", 1500, 700);
-    for (int date = 20; date <= 29; date++) {
-      sprintf(buf1, "bd2sa_p1:igcell>>hh3_%d(4500,0,900,1000,0,200)", date);
-      sprintf(buf2, "date==%d", date);
-      T->Draw(buf1, buf2);
-      sprintf(buf1, "hh3_%d", date);
-      hh3[date] = (TH2F *)gDirectory->Get(buf1);
-      hh3[date]->SetMarkerStyle(8);
-      hh3[date]->SetMarkerSize(0.5);
-      hh3[date]->SetMarkerColor(color[date - 20]);
-    }
-    hh3[20]->Draw();
-    hh3[20]->SetStats(0);
-    hh3[20]->SetTitle("dynode_b/anode_s:igcell");
-    TLegend *leg3 = new TLegend(.85, .65, .95, .95);
-    sprintf(buf1, "0320");
-    leg3->AddEntry(hh3[20], buf1, "p");
-    for (int date = 21; date <= 29; date++) {
-      hh3[date]->Draw("same");
-      sprintf(buf1, "03%d", date);
-      leg3->AddEntry(hh3[date], buf1, "p");
-    }
-    leg3->Draw();
-   */
-  for (int day = 0; day < datelength; day++) {
-    hh1[day]->Write();
-    //   hh2[day]->Write();
-    //   hh3[day]->Write();
+  TCanvas *c2a = new TCanvas("c2a", "c2atitle", 1500, 700);
+  for (int icell = 0; icell < 900; icell++) {
+    sprintf(buf1, "rate:date>>ha2(201,301,502,1000,0,20)");
+    sprintf(buf2, "igcell==%d", icell);
+    T->Draw(buf1, buf2);
+    sprintf(buf1, "ha2");
+    ha2 = (TH2F *)gDirectory->Get(buf1);
+    ha2->SetMarkerStyle(4);
+    ha2->SetMarkerSize(1);
+    ha2->SetMarkerColor(2);
+    ha2->Draw();
+    ha2->SetStats(0);
+    sprintf(buf1, "rate:date_%03d", icell);
+    ha2->SetTitle(buf1);
+    sprintf(buf1, "pictest/rate/rate:date_%03d.png", icell);
+    c2a->SaveAs(buf1);
   }
+
+
+  TCanvas *c3 = new TCanvas("c3", "c3title", 1500, 700);
+  for (int day = 0; day < datelength; day++) {
+    sprintf(buf1, "bd2sa_p1:igcell>>hh3_%d(4500,0,900,1000,0,200)", date[day]);
+    sprintf(buf2, "date==%d", date[day]);
+    T->Draw(buf1, buf2);
+    sprintf(buf1, "hh3_%d", date[day]);
+    hh3[day] = (TH2F *)gDirectory->Get(buf1);
+    hh3[day]->SetMarkerStyle(8);
+    hh3[day]->SetMarkerSize(0.5);
+    hh3[day]->SetMarkerColor(day);
+  }
+  hh3[0]->Draw();
+  hh3[0]->SetStats(0);
+  hh3[0]->SetTitle("dynode_b/anode_s:igcell");
+  TLegend *leg3 = new TLegend(0.3, 0.7, 0.9, 0.9, "date");
+  sprintf(buf1, "0%d", date[0]);
+  leg3->AddEntry(hh3[0], buf1, "p");
+  for (int day = 1; day < datelength; day++) {
+    hh3[day]->Draw("same");
+    sprintf(buf1, "0%d", date[day]);
+    leg3->AddEntry(hh3[day], buf1, "p");
+  }
+  leg3->SetNColumns(15);
+  leg3->Draw();
+  sprintf(buf1, "pictest/dynode_b2anode_s:igcell.png");
+  c3->SaveAs(buf1);
+
+
+  TCanvas *c3a = new TCanvas("c3a", "c3atitle", 1500, 700);
+  for (int icell = 0; icell < 900; icell++) {
+    sprintf(buf1, "bd2sa_p1:date>>ha3(201,301,502,1000,0,200)");
+    sprintf(buf2, "igcell==%d", icell);
+    T->Draw(buf1, buf2);
+    sprintf(buf1, "ha3");
+    ha3 = (TH2F *)gDirectory->Get(buf1);
+    ha3->SetMarkerStyle(4);
+    ha3->SetMarkerSize(1);
+    ha3->SetMarkerColor(2);
+    ha3->Draw();
+    ha3->SetStats(0);
+    sprintf(buf1, "dynode_b/anode_s:date_%03d", icell);
+    ha3->SetTitle(buf1);
+    sprintf(buf1, "pictest/db2as/dynode_b2anode_s:date_%03d.png", icell);
+    c3a->SaveAs(buf1);
+  }
+  f->Close();
 }
