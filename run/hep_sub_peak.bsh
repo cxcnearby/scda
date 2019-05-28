@@ -1,11 +1,8 @@
 #!/bin/bash
 
-BshName=/eos/daocheng/user/w/wcdapls/changxc/scda/run/peakfit.bsh
-TmpBshDir=/eos/daocheng/user/w/wcdapls/changxc/tmp_sub
+BshName=/afs/ihep.ac.cn/users/c/changxc/eos/scdanew/run/peakfit.bsh
+TmpBshDir=/afs/ihep.ac.cn/users/c/changxc/eos/tmp_sub
 tmpdir=peakfit`date "+%y%m%d%H%M"`
-
-runlog=/eos/daocheng/user/w/wcdarec/wcda/daq/mode_run.txt
-runid=($(awk '$2 ~ /SH[0-9]+\>/ && $3 !~ /[[:alnum:]]/ {print $1}' ${runlog}))
 
 if [ $# -ne 7 ]; then
     echo "Parameters: InRoot  OutDir  IfSavePNG  JobCapacity  dynode_th  anode_th0  anode_th1"
@@ -13,11 +10,11 @@ else
     InRoot=$1
     OutDir=$2
     PicDir=$OutDir/pic
-    IfSavePNG=$4
-    JobCapacity=$5
-    Dynodeth=$6
-    Anodeth0=$7
-    Anodeth1=$8
+    IfSavePNG=$3
+    JobCapacity=$4
+    Dynodeth=$5
+    Anodeth0=$6
+    Anodeth1=$7
     CellStart=0
     
     if [ -d "$OutDir" ]; then
@@ -27,6 +24,9 @@ else
         y | Y)
             echo -e "\noverwrite!"
             rm -rf $OutDir/*
+            if [ $IfSavePNG -eq 1 ]; then
+               mkdir -p "$PicDir"
+            fi
             ;;
         *)
             echo -e "\nexit!"
@@ -42,7 +42,7 @@ else
     fi
 
     while [ $CellStart -lt 900 ]; do
-        CellEnd=$($CellStart+$JobCapacity-1)
+        CellEnd=$[$CellStart + $JobCapacity - 1]
         SubName=$(basename $BshName .bsh)_${CellStart} # submission name
         mkdir -p $TmpBshDir/$tmpdir                                                                                                   # create a temp folder to save job .bsh files
         rm -rf $TmpBshDir/$tmpdir/${SubName}.bsh                                                                                       # remove possibly existed temp files
@@ -57,9 +57,9 @@ else
         sed -i -e 's#ConfigDynodeth#'$Dynodeth'#g' $TmpBshDir/$tmpdir/${SubName}.bsh                                                 # use # instead of / to prevent the "/" ambiguity in directory
         sed -i -e 's#ConfigAnodeth0#'$Anodeth0'#g' $TmpBshDir/$tmpdir/${SubName}.bsh                                                 # use # instead of / to prevent the "/" ambiguity in directory
         sed -i -e 's#ConfigAnodeth1#'$Anodeth1'#g' $TmpBshDir/$tmpdir/${SubName}.bsh                                                 # use # instead of / to prevent the "/" ambiguity in directory
-        /afs/ihep.ac.cn/soft/common/sysgroup/hep_job/bin/hep_sub -site daocheng -g lhaasorun -os SL7 $TmpBshDir/$tmpdir/${SubName}.bsh # submit job!!!
+        hep_sub -g lhaaso $TmpBshDir/$tmpdir/${SubName}.bsh # submit job!!!
         echo ${SubName} submitted                                                                                             # to show off~
-        CellStart=$($CellEnd+1)
+        CellStart=$[$CellEnd+1]
     done
 fi
 exit 0

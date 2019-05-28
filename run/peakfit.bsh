@@ -8,7 +8,7 @@ CellEnd=ConfigCellEnd
 Dynodeth=ConfigDynodeth
 Anodeth0=ConfigAnodeth0
 Anodeth1=ConfigAnodeth1
-ExeDir=/eos/daocheng/user/w/wcdapls/changxc/scda/drawing
+ExeDir=/afs/ihep.ac.cn/users/c/changxc/eos/scdanew/drawing
 
 cd $ExeDir
 #source /eos/daocheng/user/w/wcdapls/changxc/env.sh
