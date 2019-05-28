@@ -11,6 +11,6 @@ Anodeth1=ConfigAnodeth1
 ExeDir=/eos/daocheng/user/w/wcdapls/changxc/scda/drawing
 
 cd $ExeDir
-source /eos/daocheng/user/w/wcdapls/changxc/env.sh
+#source /eos/daocheng/user/w/wcdapls/changxc/env.sh
 
 ./peakanal.exe $InRoot $OutDir $PicDir $IfSavePNG $CellStart $CellEnd $Dynodeth $Anodeth0 $Anodeth1
