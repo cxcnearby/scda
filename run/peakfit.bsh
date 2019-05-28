@@ -1,0 +1,16 @@
+#!/bin/bash
+InRoot=ConfigInRoot
+OutDir=ConfigOutDir
+PicDir=ConfigPicDir
+IfSavePNG=ConfigIfSavePNG
+CellStart=ConfigCellStart
+CellEnd=ConfigCellEnd
+Dynodeth=ConfigDynodeth
+Anodeth0=ConfigAnodeth0
+Anodeth1=ConfigAnodeth1
+ExeDir=/eos/daocheng/user/w/wcdapls/changxc/scda/drawing
+
+cd $ExeDir
+source /eos/daocheng/user/w/wcdapls/changxc/env.sh
+
+./peakanal.exe $InRoot $OutDir $PicDir $IfSavePNG $CellStart $CellEnd $Dynodeth $Anodeth0 $Anodeth1
