@@ -1,13 +1,18 @@
 {
   int cellstart = 0;   // 0
-  int cellend = 0;   // 899
+  int cellend = 0;     // 899
   int dynode_th = 100; // 100
   int anode_th0 = 30;  // 30
-  int anode_th1 = 100;  // 80
+  int anode_th1 = 100; // 80
 
   FILE *fp_peakfit;
   FILE *fp_bd2saall;
-  if ((fp_peakfit = fopen("/afs/ihep.ac.cn/users/c/changxc/eos/scdanew/output/anal_peakfit.txt", "w")) == NULL || (fp_bd2saall = fopen("/afs/ihep.ac.cn/users/c/changxc/eos/scdanew/output/anal_bd2saall.txt", "w")) == NULL) {
+  if ((fp_peakfit = fopen("/afs/ihep.ac.cn/users/c/changxc/eos/scdanew/output/"
+                          "anal_peakfit.txt",
+                          "w")) == NULL ||
+      (fp_bd2saall = fopen("/afs/ihep.ac.cn/users/c/changxc/eos/scdanew/output/"
+                           "anal_bd2saall.txt",
+                           "w")) == NULL) {
     printf("cannot create log files\n");
     exit(0);
   }
@@ -75,7 +80,6 @@
 
   char buf1[500], buf2[500];
 
-
   Long64_t b2sevent;
   double par1[2];
   double parerr1[2];
@@ -83,7 +87,6 @@
   Long64_t tevent;
   double par2[3];
   double parerr2[3];
-
 
   TH2F *hh1;
   TH1F *h1;
@@ -121,14 +124,15 @@
     gStyle->SetOptStat(1);
     gStyle->SetOptFit(1);
 
-    fprintf(fp_bd2saall, "%3d\t%9.3f\t%9.3f\t%9.3f\t%9.3f\n", icell, par1[0], parerr1[0], par1[1], parerr1[1]);
+    fprintf(fp_bd2saall, "%3d\t%9.3f\t%9.3f\t%9.3f\t%9.3f\n", icell, par1[0],
+            parerr1[0], par1[1], parerr1[1]);
     sprintf(buf1, "bd2saall_%03d.png", icell);
     c1->SaveAs(buf1);
 
-        /************ dynode_b ************************/
+    /************ dynode_b ************************/
     sprintf(buf1, "dynode_b>>h1_%d(200,0,200)", icell);
     sprintf(buf2, "igcell==%d", icell);
-    //c1->SetLogy(1);
+    // c1->SetLogy(1);
 
     chain->Draw(buf1, buf2);
     sprintf(buf1, "h1_%d", icell);
@@ -152,18 +156,16 @@
     gStyle->SetOptStat(1);
     gStyle->SetOptFit(1);
 
-    fprintf(fp_peakfit,
-            "%3d\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t",
+    fprintf(fp_peakfit, "%3d\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t",
             icell, par2[0], parerr2[0], par2[1], parerr2[1], par2[2],
             parerr2[2]);
     sprintf(buf1, "dynode_b_%03d.png", icell);
     c1->SaveAs(buf1);
 
-
     /************ anode_s ************************/
     sprintf(buf1, "anode_s>>h1_%d(200,0,200)", icell);
     sprintf(buf2, "pow(anode_s,2.8)*(igcell==%d)", icell);
-    //c1->SetLogy(1);
+    // c1->SetLogy(1);
 
     chain->Draw(buf1, buf2);
     sprintf(buf1, "h1_%d", icell);
@@ -187,10 +189,8 @@
     gStyle->SetOptStat(1);
     gStyle->SetOptFit(1);
 
-    fprintf(fp_peakfit,
-            "%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\n",
-            par2[0], parerr2[0], par2[1], parerr2[1], par2[2],
-            parerr2[2]);
+    fprintf(fp_peakfit, "%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\t%9.3f\n", par2[0],
+            parerr2[0], par2[1], parerr2[1], par2[2], parerr2[2]);
     sprintf(buf1, "anode_s_%03d.png", icell);
     c1->SaveAs(buf1);
   }

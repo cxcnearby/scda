@@ -3,7 +3,7 @@ DataDir=/eos/daocheng/user/w/wcdapls/changxc/output/scda/auto/2019
 
 for DayDir in $(ls ${DataDir}); do
     echo $DayDir
-    paste $DataDir/$DayDir/anal_rate.txt $DataDir/$DayDir/anal_timedf.txt $DataDir/$DayDir/anal_bd2sa.txt | awk -v day=${DayDir} '{print day,$1,$2,$3,$4,$6,$7,$8,$9,$10,$11,$13,$14,$15,$16,$17,$18,$19,$23,$24}' > $DataDir/$DayDir/test.txt
+    paste $DataDir/$DayDir/anal_rate.txt $DataDir/$DayDir/anal_timedf.txt $DataDir/$DayDir/anal_bd2sa.txt | awk -v day=${DayDir} '{print day,$1,$2,$3,$4,$6,$7,$8,$9,$10,$11,$13,$14,$15,$16,$17,$18,$19,$23,$24}' >$DataDir/$DayDir/test.txt
 done
-cat ${DataDir}/*/test.txt > ${DataDir}/combtest.txt
+cat ${DataDir}/*/test.txt >${DataDir}/combtest.txt
 exit 0

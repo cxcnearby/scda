@@ -2,7 +2,7 @@
 
 BshName=/afs/ihep.ac.cn/users/c/changxc/eos/scdanew/run/peakfit.bsh
 TmpBshDir=/afs/ihep.ac.cn/users/c/changxc/eos/tmp_sub
-tmpdir=peakfit`date "+%y%m%d%H%M"`
+tmpdir=peakfit$(date "+%y%m%d%H%M")
 
 if [ $# -ne 7 ]; then
     echo "Parameters: InRoot  OutDir  IfSavePNG  JobCapacity  dynode_th  anode_th0  anode_th1"
@@ -16,7 +16,7 @@ else
     Anodeth0=$6
     Anodeth1=$7
     CellStart=0
-    
+
     if [ -d "$OutDir" ]; then
         read -t 30 -n 1 -p "OutDir exists, press \"y\" to OVERWRITE or else to exit: " ans
         # ans = "y"    # for auto overwriting! COMMIT PREVIOUS LINE!
@@ -25,7 +25,7 @@ else
             echo -e "\noverwrite!"
             rm -rf $OutDir/*
             if [ $IfSavePNG -eq 1 ]; then
-               mkdir -p "$PicDir"
+                mkdir -p "$PicDir"
             fi
             ;;
         *)
@@ -38,28 +38,28 @@ else
         if [ $IfSavePNG -eq 1 ]; then
             mkdir -p "$PicDir"
         fi
-        
+
     fi
 
     while [ $CellStart -lt 900 ]; do
-        CellEnd=$[$CellStart + $JobCapacity - 1]
-        SubName=$(basename $BshName .bsh)_${CellStart} # submission name
-        mkdir -p $TmpBshDir/$tmpdir                                                                                                   # create a temp folder to save job .bsh files
-        rm -rf $TmpBshDir/$tmpdir/${SubName}.bsh                                                                                       # remove possibly existed temp files
-        cp -rf ${BshName} $TmpBshDir/$tmpdir/${SubName}.bsh                                                                        # make a temp copy of the .bsh file
-        chmod 755 $TmpBshDir/$tmpdir/${SubName}.bsh                                                                                    # change file permission to allow execute
-        sed -i -e 's#ConfigInRoot#'$InRoot'#g' $TmpBshDir/$tmpdir/${SubName}.bsh                                                 # use # instead of / to prevent the "/" ambiguity in directory
-        sed -i -e 's#ConfigOutDir#'$OutDir'#g' $TmpBshDir/$tmpdir/${SubName}.bsh                                                 # use # instead of / to prevent the "/" ambiguity in directory
-        sed -i -e 's#ConfigPicDir#'$PicDir'#g' $TmpBshDir/$tmpdir/${SubName}.bsh                                                 # use # instead of / to prevent the "/" ambiguity in directory
-        sed -i -e 's#ConfigIfSavePNG#'$IfSavePNG'#g' $TmpBshDir/$tmpdir/${SubName}.bsh                                                 # use # instead of / to prevent the "/" ambiguity in directory
-        sed -i -e 's#ConfigCellStart#'$CellStart'#g' $TmpBshDir/$tmpdir/${SubName}.bsh                                                 # use # instead of / to prevent the "/" ambiguity in directory
-        sed -i -e 's#ConfigCellEnd#'$CellEnd'#g' $TmpBshDir/$tmpdir/${SubName}.bsh                                                 # use # instead of / to prevent the "/" ambiguity in directory
-        sed -i -e 's#ConfigDynodeth#'$Dynodeth'#g' $TmpBshDir/$tmpdir/${SubName}.bsh                                                 # use # instead of / to prevent the "/" ambiguity in directory
-        sed -i -e 's#ConfigAnodeth0#'$Anodeth0'#g' $TmpBshDir/$tmpdir/${SubName}.bsh                                                 # use # instead of / to prevent the "/" ambiguity in directory
-        sed -i -e 's#ConfigAnodeth1#'$Anodeth1'#g' $TmpBshDir/$tmpdir/${SubName}.bsh                                                 # use # instead of / to prevent the "/" ambiguity in directory
-        hep_sub -g lhaaso $TmpBshDir/$tmpdir/${SubName}.bsh # submit job!!!
-        echo ${SubName} submitted                                                                                             # to show off~
-        CellStart=$[$CellEnd+1]
+        CellEnd=$(($CellStart + $JobCapacity - 1))
+        SubName=$(basename $BshName .bsh)_${CellStart}                                 # submission name
+        mkdir -p $TmpBshDir/$tmpdir                                                    # create a temp folder to save job .bsh files
+        rm -rf $TmpBshDir/$tmpdir/${SubName}.bsh                                       # remove possibly existed temp files
+        cp -rf ${BshName} $TmpBshDir/$tmpdir/${SubName}.bsh                            # make a temp copy of the .bsh file
+        chmod 755 $TmpBshDir/$tmpdir/${SubName}.bsh                                    # change file permission to allow execute
+        sed -i -e 's#ConfigInRoot#'$InRoot'#g' $TmpBshDir/$tmpdir/${SubName}.bsh       # use # instead of / to prevent the "/" ambiguity in directory
+        sed -i -e 's#ConfigOutDir#'$OutDir'#g' $TmpBshDir/$tmpdir/${SubName}.bsh       # use # instead of / to prevent the "/" ambiguity in directory
+        sed -i -e 's#ConfigPicDir#'$PicDir'#g' $TmpBshDir/$tmpdir/${SubName}.bsh       # use # instead of / to prevent the "/" ambiguity in directory
+        sed -i -e 's#ConfigIfSavePNG#'$IfSavePNG'#g' $TmpBshDir/$tmpdir/${SubName}.bsh # use # instead of / to prevent the "/" ambiguity in directory
+        sed -i -e 's#ConfigCellStart#'$CellStart'#g' $TmpBshDir/$tmpdir/${SubName}.bsh # use # instead of / to prevent the "/" ambiguity in directory
+        sed -i -e 's#ConfigCellEnd#'$CellEnd'#g' $TmpBshDir/$tmpdir/${SubName}.bsh     # use # instead of / to prevent the "/" ambiguity in directory
+        sed -i -e 's#ConfigDynodeth#'$Dynodeth'#g' $TmpBshDir/$tmpdir/${SubName}.bsh   # use # instead of / to prevent the "/" ambiguity in directory
+        sed -i -e 's#ConfigAnodeth0#'$Anodeth0'#g' $TmpBshDir/$tmpdir/${SubName}.bsh   # use # instead of / to prevent the "/" ambiguity in directory
+        sed -i -e 's#ConfigAnodeth1#'$Anodeth1'#g' $TmpBshDir/$tmpdir/${SubName}.bsh   # use # instead of / to prevent the "/" ambiguity in directory
+        hep_sub -g lhaaso $TmpBshDir/$tmpdir/${SubName}.bsh                            # submit job!!!
+        echo ${SubName} submitted                                                      # to show off~
+        CellStart=$(($CellEnd + 1))
     done
 fi
 exit 0

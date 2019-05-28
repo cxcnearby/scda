@@ -1,12 +1,12 @@
 #include <TCanvas.h>
+#include <TChain.h>
 #include <TF1.h>
 #include <TFile.h>
-#include <TChain.h>
 #include <TH1.h>
 #include <TH2.h>
-#include <stdlib.h>
-#include <iostream>
 #include <TStyle.h>
+#include <iostream>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -17,10 +17,12 @@ int main(int argc, char *argv[]) {
   int cellend = 899;   // 899
   int dynode_th = 100; // 100
   int anode_th0 = 30;  // 30
-  int anode_th1 = 100;  // 80
+  int anode_th1 = 100; // 80
 
   if (argc < 4) {
-    printf("%s  input.root  outdir  picdir  [IfSavePNG]  [cellstart]  [cellend]  [dynode_th]  [anode_th0]  [anode_th1]\n", argv[0]);
+    printf("%s  input.root  outdir  picdir  [IfSavePNG]  [cellstart]  "
+           "[cellend]  [dynode_th]  [anode_th0]  [anode_th1]\n",
+           argv[0]);
     exit(0);
   }
   string infile = argv[1], outdir = argv[2], picdir = argv[3];
@@ -38,7 +40,7 @@ int main(int argc, char *argv[]) {
   if (argc >= 9) {
     anode_th0 = atoi(argv[8]);
   }
-  if (argc >=10) {
+  if (argc >= 10) {
     anode_th1 = atoi(argv[9]);
   }
 
@@ -64,7 +66,6 @@ int main(int argc, char *argv[]) {
   t_bd2sa->Branch("par2", &b_1par[1]);
   t_bd2sa->Branch("par2err", &b_1parerr[1]);
 
-
   t_peakfit->Branch("igcell", &b_igcell);
   t_peakfit->Branch("dynode_b_par1", &b_2par[0], "landau fit");
   t_peakfit->Branch("dynode_b_par1err", &b_2parerr[0]);
@@ -78,8 +79,6 @@ int main(int argc, char *argv[]) {
   t_peakfit->Branch("anode_s_par2err", &b_3parerr[1]);
   t_peakfit->Branch("anode_s_par3", &b_3par[2]);
   t_peakfit->Branch("anode_s_par3err", &b_3parerr[2]);
-
-
 
   Long64_t entry_number_b;
   Long64_t total_number;
@@ -185,14 +184,15 @@ int main(int argc, char *argv[]) {
     gStyle->SetOptFit(1);
 
     t_bd2sa->Fill();
-    sprintf(buf1, "%s/bd2saall_%03d.png", picdir.c_str(),icell);
-    if (IfSavePNG)  c1->SaveAs(buf1);
+    sprintf(buf1, "%s/bd2saall_%03d.png", picdir.c_str(), icell);
+    if (IfSavePNG)
+      c1->SaveAs(buf1);
 
-        /************ dynode_b ************************/
+    /************ dynode_b ************************/
     c1->cd(2);
     sprintf(buf1, "dynode_b>>h1_%d(200,0,200)", icell);
     sprintf(buf2, "igcell==%d", icell);
-    //c1->SetLogy(1);
+    // c1->SetLogy(1);
 
     chain->Draw(buf1, buf2);
     sprintf(buf1, "h1_%d", icell);
@@ -216,14 +216,14 @@ int main(int argc, char *argv[]) {
     gStyle->SetOptStat(1);
     gStyle->SetOptFit(1);
 
-    sprintf(buf1, "%s/dynode_b_%03d.png", picdir.c_str(),icell);
-    if (IfSavePNG)  c1->SaveAs(buf1);
-
+    sprintf(buf1, "%s/dynode_b_%03d.png", picdir.c_str(), icell);
+    if (IfSavePNG)
+      c1->SaveAs(buf1);
 
     /************ anode_s ************************/
     sprintf(buf1, "anode_s>>h1_%d(200,0,200)", icell);
     sprintf(buf2, "pow(anode_s,2.8)*(igcell==%d)", icell);
-    //c1->SetLogy(1);
+    // c1->SetLogy(1);
 
     chain->Draw(buf1, buf2);
     sprintf(buf1, "h1_%d", icell);
@@ -249,7 +249,10 @@ int main(int argc, char *argv[]) {
 
     t_peakfit->Fill();
     sprintf(buf1, "%s/anode_s_%03d.png", picdir.c_str(), icell);
-    if (IfSavePNG)  c1->SaveAs(buf1);
+    if (IfSavePNG)
+      c1->SaveAs(buf1);
+    sprintf(buf1, "h1_%d", icell);
+    delete (TH1F *)gDirectory->Get(buf1);
   }
   f_anal->Write();
   f_anal->Close();

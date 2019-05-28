@@ -67,7 +67,6 @@ void anal_rootgeneratorall() {
   sprintf(buf1, "pictest/time_df_anode_p2:igcell.png");
   c1->SaveAs(buf1);
 
-
   TCanvas *c1a = new TCanvas("c1a", "c1atitle", 1500, 700);
 
   for (int icell = 0; icell < 900; icell++) {
@@ -83,16 +82,17 @@ void anal_rootgeneratorall() {
     ha1->SetStats(0);
     sprintf(buf1, "time_df_anode_p2:date_%03d", icell);
     ha1->SetTitle(buf1);
-    sprintf(buf1, "pictest/time_df_anode/time_df_anode_p2:date_%03d.png", icell);
+    sprintf(buf1, "pictest/time_df_anode/time_df_anode_p2:date_%03d.png",
+            icell);
     c1a->SaveAs(buf1);
   }
 
   TCanvas *c2 = new TCanvas("c2", "c2title", 1500, 700);
   for (int day = 0; day < datelength; day++) {
-    sprintf(buf1, "rate:igcell>>hh2_%d(4500,0,900,1000,0,20)",  date[day]);
-    sprintf(buf2, "date==%d",  date[day]);
+    sprintf(buf1, "rate:igcell>>hh2_%d(4500,0,900,1000,0,20)", date[day]);
+    sprintf(buf2, "date==%d", date[day]);
     T->Draw(buf1, buf2);
-    sprintf(buf1, "hh2_%d",  date[day]);
+    sprintf(buf1, "hh2_%d", date[day]);
     hh2[day] = (TH2F *)gDirectory->Get(buf1);
     hh2[day]->SetMarkerStyle(8);
     hh2[day]->SetMarkerSize(0.5);
@@ -114,7 +114,6 @@ void anal_rootgeneratorall() {
   sprintf(buf1, "pictest/rate:igcell.png");
   c2->SaveAs(buf1);
 
-
   TCanvas *c2a = new TCanvas("c2a", "c2atitle", 1500, 700);
   for (int icell = 0; icell < 900; icell++) {
     sprintf(buf1, "rate:date>>ha2(201,301,502,1000,0,20)");
@@ -132,7 +131,6 @@ void anal_rootgeneratorall() {
     sprintf(buf1, "pictest/rate/rate:date_%03d.png", icell);
     c2a->SaveAs(buf1);
   }
-
 
   TCanvas *c3 = new TCanvas("c3", "c3title", 1500, 700);
   for (int day = 0; day < datelength; day++) {
@@ -160,7 +158,6 @@ void anal_rootgeneratorall() {
   leg3->Draw();
   sprintf(buf1, "pictest/dynode_b2anode_s:igcell.png");
   c3->SaveAs(buf1);
-
 
   TCanvas *c3a = new TCanvas("c3a", "c3atitle", 1500, 700);
   for (int icell = 0; icell < 900; icell++) {

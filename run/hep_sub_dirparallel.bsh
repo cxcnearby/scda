@@ -5,7 +5,7 @@ spath=/eos/daocheng/user/w/wcdapls/decode/decoded_root
 opath=/eos/daocheng/user/w/wcdapls/changxc/output/scda/auto
 BshName=/eos/daocheng/user/w/wcdapls/changxc/scda/run/matchparallel_sort.bsh
 TmpBshDir=/eos/daocheng/user/w/wcdapls/changxc/tmp_sub
-tmpdir=Hmatch`date "+%y%m%d%H%M"`
+tmpdir=Hmatch$(date "+%y%m%d%H%M")
 
 runlog=/eos/daocheng/user/w/wcdarec/wcda/daq/mode_run.txt
 runid=($(awk '$2 ~ /SH[0-9]+\>/ && $3 !~ /[[:alnum:]]/ {print $1}' ${runlog}))
@@ -89,14 +89,14 @@ else
             fi
         done
     done
-    SubName=$(basename $BshName .bsh)_${year}_${date} # submission name
-    mkdir -p $TmpBshDir/$tmpdir                                                                                                   # create a temp folder to save job .bsh files
-    rm -rf $TmpBshDir/$tmpdir/${SubName}.bsh                                                                                       # remove possibly existed temp files
-    cp -rf ${BshName} $TmpBshDir/$tmpdir/${SubName}.bsh                                                                        # make a temp copy of the .bsh file
-    chmod 755 $TmpBshDir/$tmpdir/${SubName}.bsh                                                                                    # change file permission to allow execute
-    cat $opath/filematched.tmp | xargs -i -P 0 /afs/ihep.ac.cn/soft/common/sysgroup/hep_job/bin/hep_sub -site daocheng -g lhaasorun -os SL7 $TmpBshDir/$tmpdir/${SubName}.bsh -argu {}  # submit job!!!
+    SubName=$(basename $BshName .bsh)_${year}_${date}                                                                                                                                  # submission name
+    mkdir -p $TmpBshDir/$tmpdir                                                                                                                                                        # create a temp folder to save job .bsh files
+    rm -rf $TmpBshDir/$tmpdir/${SubName}.bsh                                                                                                                                           # remove possibly existed temp files
+    cp -rf ${BshName} $TmpBshDir/$tmpdir/${SubName}.bsh                                                                                                                                # make a temp copy of the .bsh file
+    chmod 755 $TmpBshDir/$tmpdir/${SubName}.bsh                                                                                                                                        # change file permission to allow execute
+    cat $opath/filematched.tmp | xargs -i -P 0 /afs/ihep.ac.cn/soft/common/sysgroup/hep_job/bin/hep_sub -site daocheng -g lhaasorun -os SL7 $TmpBshDir/$tmpdir/${SubName}.bsh -argu {} # submit job!!!
     rm -rf $opath/filematched.tmp
-    echo $year $date submitted                                                                                             # to show off~
+    echo $year $date submitted # to show off~
 # output number of bfile
 #    echo ${#bfile[@]}; sleep 3s
 # output each bfile
