@@ -1,1 +1,0 @@
-paste anal_rate.txt anal_timedf.txt anal_bd2sa.txt | awk '{print 29,$1,$2,$3,$4,$6,$7,$8,$9,$10,$11,$13,$14,$15,$16,$17,$18,$19,$23,$24}' > test.txt
