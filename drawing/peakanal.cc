@@ -10,6 +10,10 @@
 
 using namespace std;
 
+Double_t powerfunc(Double_t *x, Double_t *par);
+Double_t gaussfunc(Double_t *x, Double_t *par);
+Double_t combfunc(Double_t *x, Double_t *par);
+
 int main(int argc, char *argv[]) {
 
   int IfSavePNG = 0;   // not save pic
@@ -52,8 +56,8 @@ int main(int argc, char *argv[]) {
   double_t b_2par[3];
   double_t b_2parerr[3];
 
-  double_t b_3par[3];
-  double_t b_3parerr[3];
+  double_t b_3par[5];
+  double_t b_3parerr[5];
 
   TFile *f_anal = new TFile(outroot.c_str(), "recreate");
   TTree *t_bd2sa = new TTree("bd2sa", "dynode_b : anode_s prof fit");
@@ -61,24 +65,28 @@ int main(int argc, char *argv[]) {
 
   t_bd2sa->Branch("igcell", &b_igcell);
   t_bd2sa->Branch("events", &b_b2sevent);
-  t_bd2sa->Branch("par1", &b_1par[0]);
-  t_bd2sa->Branch("par1err", &b_1parerr[0]);
-  t_bd2sa->Branch("par2", &b_1par[1]);
-  t_bd2sa->Branch("par2err", &b_1parerr[1]);
+  t_bd2sa->Branch("par0", &b_1par[0]);
+  t_bd2sa->Branch("par0err", &b_1parerr[0]);
+  t_bd2sa->Branch("par1", &b_1par[1]);
+  t_bd2sa->Branch("par1err", &b_1parerr[1]);
 
   t_peakfit->Branch("igcell", &b_igcell);
-  t_peakfit->Branch("dynode_b_par1", &b_2par[0], "landau fit");
-  t_peakfit->Branch("dynode_b_par1err", &b_2parerr[0]);
-  t_peakfit->Branch("dynode_b_par2", &b_2par[1]);
-  t_peakfit->Branch("dynode_b_par2err", &b_2parerr[1]);
-  t_peakfit->Branch("dynode_b_par3", &b_2par[2]);
-  t_peakfit->Branch("dynode_b_par3err", &b_2parerr[2]);
-  t_peakfit->Branch("anode_s_par1", &b_3par[0], "gauss fit");
-  t_peakfit->Branch("anode_s_par1err", &b_3parerr[0]);
-  t_peakfit->Branch("anode_s_par2", &b_3par[1]);
-  t_peakfit->Branch("anode_s_par2err", &b_3parerr[1]);
-  t_peakfit->Branch("anode_s_par3", &b_3par[2]);
-  t_peakfit->Branch("anode_s_par3err", &b_3parerr[2]);
+  t_peakfit->Branch("dynode_b_par0", &b_2par[0], "landau fit");
+  t_peakfit->Branch("dynode_b_par0err", &b_2parerr[0]);
+  t_peakfit->Branch("dynode_b_par1", &b_2par[1]);
+  t_peakfit->Branch("dynode_b_par1err", &b_2parerr[1]);
+  t_peakfit->Branch("dynode_b_par2", &b_2par[2]);
+  t_peakfit->Branch("dynode_b_par2err", &b_2parerr[2]);
+  t_peakfit->Branch("anode_s_par0", &b_3par[0], "gauss fit");
+  t_peakfit->Branch("anode_s_par0err", &b_3parerr[0]);
+  t_peakfit->Branch("anode_s_par1", &b_3par[1]);
+  t_peakfit->Branch("anode_s_par1err", &b_3parerr[1]);
+  t_peakfit->Branch("anode_s_par2", &b_3par[2]);
+  t_peakfit->Branch("anode_s_par2err", &b_3parerr[2]);
+  t_peakfit->Branch("anode_s_par3", &b_3par[3]);
+  t_peakfit->Branch("anode_s_par3err", &b_3parerr[3]);
+  t_peakfit->Branch("anode_s_par4", &b_3par[4]);
+  t_peakfit->Branch("anode_s_par4err", &b_3parerr[4]);
 
   Long64_t entry_number_b;
   Long64_t total_number;
@@ -159,6 +167,8 @@ int main(int argc, char *argv[]) {
   for (int icell = cellstart; icell <= cellend; icell++) {
 
     b_igcell = icell;
+    gPad->SetLogx(0);
+    gPad->SetLogy(0);
 
     /************ dynode_b:anode_s ************************/
     sprintf(buf1, "dynode_b:anode_s>>h1_%d(200,0,200)", icell);
@@ -189,7 +199,6 @@ int main(int argc, char *argv[]) {
       c1->SaveAs(buf1);
 
     /************ dynode_b ************************/
-    c1->cd(2);
     sprintf(buf1, "dynode_b>>h1_%d(200,0,200)", icell);
     sprintf(buf2, "igcell==%d", icell);
     // c1->SetLogy(1);
@@ -221,31 +230,94 @@ int main(int argc, char *argv[]) {
       c1->SaveAs(buf1);
 
     /************ anode_s ************************/
-    sprintf(buf1, "anode_s>>h1_%d(200,0,200)", icell);
-    sprintf(buf2, "pow(anode_s,2.8)*(igcell==%d)", icell);
+
+    Double_t tmpbincontent[71];
+    Double_t maxheight = 0.;
+    Double_t maxwidth = 0.;
+
+    sprintf(buf1, "anode_s>>h1_%d(1000,6,1000)", icell);
+    sprintf(buf2, "igcell==%d", icell);
     // c1->SetLogy(1);
 
     chain->Draw(buf1, buf2);
     sprintf(buf1, "h1_%d", icell);
     h1 = (TH1F *)gDirectory->Get(buf1);
+    gPad->SetLogx();
+    gPad->SetLogy();
 
     tevent = h1->Integral();
     if (tevent != 0) {
-      h1->Fit("f2", "Q", "", 30, 100);
-      f2->GetParameters(&b_3par[0]);
-      b_3parerr[0] = f2->GetParError(0);
-      b_3parerr[1] = f2->GetParError(1);
-      b_3parerr[2] = f2->GetParError(2);
+      int maxi = 0;
+      int xpeak = 6 + h1->GetMaximumBin();
+
+      TF1 *fit = new TF1("fit", combfunc, xpeak, 700, 5);
+      TF1 *backfit = new TF1("backfit", powerfunc, xpeak, 700, 2);
+      TF1 *peakfit = new TF1("peakfit", gaussfunc, xpeak, 700, 3);
+
+      for (int i = 0; i < 71; i++) {
+        tmpbincontent[i] = h1->GetBinContent(i + 30);
+        h1->SetBinContent(i + 30, 0.);
+      }
+
+      backfit->SetParameter(1, -2.8);
+      h1->Fit("backfit", "QMRN");
+      backfit->GetParameters(b_3par);
+      b_3parerr[0] = backfit->GetParError(0);
+      b_3parerr[1] = backfit->GetParError(1);
+
+      for (int i = 0; i < 71; i++) {
+        h1->SetBinContent(i + 30, tmpbincontent[i]);
+        Double_t iheight = tmpbincontent[i] - backfit->Eval(i + 30 + 6);
+        if (iheight > maxheight) {
+          maxheight = iheight;
+          maxi = i;
+        }
+        if (iheight < maxheight && iheight / maxheight > 0.3)
+          maxwidth = i - maxi;
+      }
+
+      fit->SetParameter(0, b_3par[0]);
+      fit->SetParameter(1, b_3par[1]);
+      fit->SetParameter(2, maxheight);
+      fit->SetParameter(3, maxi + 30);
+      fit->SetParameter(4, maxwidth);
+      fit->SetParLimits(0, b_3par[0] - b_3parerr[0], b_3par[0] + b_3parerr[0]);
+      fit->SetParLimits(1, b_3par[1] - b_3parerr[1], b_3par[1] + b_3parerr[1]);
+      // fit->SetParLimits(2,20,1000);
+      fit->SetParLimits(3, maxi + 30, maxi + 30 + maxwidth);
+      // fit->SetParLimits(4,1,100);
+
+      h1->SetLineColor(kBlack);
+      fit->SetLineColor(kBlue);
+      backfit->SetLineColor(kRed);
+      peakfit->SetLineColor(kMagenta);
+      h1->Fit("fit", "QMR");
+
+      fit->GetParameters(b_3par);
+      b_3parerr[0] = fit->GetParError(0);
+      b_3parerr[1] = fit->GetParError(1);
+      b_3parerr[2] = fit->GetParError(2);
+      b_3parerr[3] = fit->GetParError(3);
+      b_3parerr[4] = fit->GetParError(4);
+
+      backfit->SetParameters(b_3par);
+      peakfit->SetParameters(&b_3par[2]);
+      backfit->Draw("same");
+      peakfit->Draw("same");
+      gStyle->SetOptStat(0);
+      gStyle->SetOptFit(1);
     } else {
       b_3par[0] = 0.;
       b_3par[1] = 0.;
       b_3par[2] = 0.;
+      b_3par[3] = 0.;
+      b_3par[4] = 0.;
       b_3parerr[0] = 0.;
       b_3parerr[1] = 0.;
       b_3parerr[2] = 0.;
+      b_3parerr[3] = 0.;
+      b_3parerr[4] = 0.;
     }
-    gStyle->SetOptStat(1);
-    gStyle->SetOptFit(1);
 
     t_peakfit->Fill();
     sprintf(buf1, "%s/anode_s_%03d.png", picdir.c_str(), icell);
@@ -257,4 +329,18 @@ int main(int argc, char *argv[]) {
   f_anal->Write();
   f_anal->Close();
   return 0;
+}
+
+Double_t powerfunc(Double_t *x, Double_t *par) {
+  return par[0] * TMath::Power(x[0], par[1]);
+}
+Double_t gaussfunc(Double_t *x, Double_t *par) {
+  Double_t arg = 0;
+  if (par[2] != 0)
+    arg = (x[0] - par[1]) / par[2];
+  Double_t fitval = par[0] * TMath::Exp(-0.5 * arg * arg);
+  return fitval;
+}
+Double_t combfunc(Double_t *x, Double_t *par) {
+  return powerfunc(x, par) + gaussfunc(x, &par[2]);
 }

@@ -27,6 +27,7 @@
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
+#include "igcellreverse.h"
 
 using namespace std;
 
