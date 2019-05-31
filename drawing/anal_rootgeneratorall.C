@@ -1,4 +1,7 @@
+#include "../igcellreverse.h"
+
 void anal_rootgeneratorall() {
+
   int date[] = {301, 302, 303, 304, 306, 307, 308, 309, 310, 311, 312, 313, 314,
                 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327,
                 328, 329, 330, 331, 401, 402, 403, 404, 405, 406, 407, 408, 409,
@@ -19,10 +22,41 @@ void anal_rootgeneratorall() {
   TTree *T = new TTree("anal", "data from file");
   T->ReadFile(
       "/home/changxc/mywork/code/repo/scda/output/auto/allcombtest.txt",
-      "date:igcell:nevent0:duration:rate:nevent1:time_df_p1:time_df_p1err:time_"
-      "df_p2:time_df_p2err:time_df_p3:time_df_p3err:time_df_anode_p1:"
-      "time_df_anode_p1err:time_df_anode_p2:time_df_anode_p2err:time_df_anode_"
-      "p3:time_df_anode_p3err:bd2sa_p1:bd2sa_p1err");
+      "date/I:igcell/I:nevent0/I:duration/I:rate/F:nevent1/I:time_df_p1/"
+      "F:time_df_p1err/F:time_"
+      "df_p2/F:time_df_p2err/F:time_df_p3/F:time_df_p3err/F:time_df_anode_p1/F:"
+      "time_df_anode_p1err/F:time_df_anode_p2/F:time_df_anode_p2err/"
+      "F:time_df_anode_"
+      "p3/F:time_df_anode_p3err/F:bd2sa_p1/F:bd2sa_p1err");
+  // TODO
+  int fee_b, channel, fee_s, db, pmt;
+  Float_t x, y;
+
+  TBranch *b_fee_b = T->Branch("fee_b", &fee_b);
+  TBranch *b_channel = T->Branch("channel", &channel);
+  TBranch *b_fee_s = T->Branch("fee_s", &fee_s);
+  TBranch *b_db = T->Branch("db", &db);
+  TBranch *b_pmt = T->Branch("pmt", &pmt);
+  TBranch *b_x = T->Branch("x", &x);
+  TBranch *b_y = T->Branch("y", &y);
+
+  int igcell;
+  T->SetBranchAddress("igcell", &igcell);
+  int nentries = T->GetEntries();
+
+  for (int i = 0; i < nentries; i++) {
+    T->GetEntry(i);
+    smigcellreverse(igcell, &fee_s, &db, &pmt, &x, &y);
+    bigigcellreverse(igcell, &fee_b, &channel, &x, &y);
+    b_fee_b->Fill();
+    b_channel->Fill();
+    b_fee_s->Fill();
+    b_db->Fill();
+    b_pmt->Fill();
+    b_x->Fill();
+    b_y->Fill();
+  }
+  // TODO
   T->Write();
 
   TH2F *hh1[datelength];
