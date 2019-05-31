@@ -1,3 +1,4 @@
+#include "Math/MinimizerOptions.h"
 #include <TCanvas.h>
 #include <TChain.h>
 #include <TF1.h>
@@ -15,6 +16,8 @@ Double_t gaussfunc(Double_t *x, Double_t *par);
 Double_t combfunc(Double_t *x, Double_t *par);
 
 int main(int argc, char *argv[]) {
+
+  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
 
   int IfSavePNG = 0;   // not save pic
   int cellstart = 0;   // 0
@@ -154,6 +157,7 @@ int main(int argc, char *argv[]) {
 
   TH2F *hh1;
   TH1F *h1;
+  TH1F *htmp = new TH1F("htmp", "htmp", 70, 30, 100);
 
   TF1 *f1 = new TF1("f1", "pol 1");
   f1->FixParameter(0, 0.);
@@ -209,11 +213,17 @@ int main(int argc, char *argv[]) {
 
     tevent = h1->Integral();
     if (tevent != 0) {
-      h1->Fit("f3", "Q", "", 30, 100);
-      f3->GetParameters(&b_2par[0]);
-      b_2parerr[0] = f3->GetParError(0);
-      b_2parerr[1] = f3->GetParError(1);
-      b_2parerr[2] = f3->GetParError(2);
+      // h1->Fit("f3", "Q", "", 30, 100);
+      // f3->GetParameters(&b_2par[0]);
+      // b_2parerr[0] = f3->GetParError(0);
+      // b_2parerr[1] = f3->GetParError(1);
+      // b_2parerr[2] = f3->GetParError(2);
+      int dbpeak = h1->GetMaximumBin();
+      h1->Fit("f2", "Q", "", dbpeak - 20, dbpeak + 20);
+      f2->GetParameters(&b_2par[0]);
+      b_2parerr[0] = f2->GetParError(0);
+      b_2parerr[1] = f2->GetParError(1);
+      b_2parerr[2] = f2->GetParError(2);
     } else {
       b_2par[0] = 0.;
       b_2par[1] = 0.;
@@ -230,12 +240,12 @@ int main(int argc, char *argv[]) {
       c1->SaveAs(buf1);
 
     /************ anode_s ************************/
-
-    Double_t tmpbincontent[71];
+    Double_t tmpbincontent[70];
     Double_t maxheight = 0.;
+    Double_t maxi = 0.;
     Double_t maxwidth = 0.;
 
-    sprintf(buf1, "anode_s>>h1_%d(1000,6,1000)", icell);
+    sprintf(buf1, "anode_s>>h1_%d(1000,6,1006)", icell);
     sprintf(buf2, "igcell==%d", icell);
     // c1->SetLogy(1);
 
@@ -247,45 +257,43 @@ int main(int argc, char *argv[]) {
 
     tevent = h1->Integral();
     if (tevent != 0) {
-      int maxi = 0;
       int xpeak = 6 + h1->GetMaximumBin();
+      TF1 *fit = new TF1("fit", combfunc, xpeak, 500, 5);
+      TF1 *backfit = new TF1("backfit", powerfunc, xpeak, 500, 2);
+      TF1 *peakfit = new TF1("peakfit", gaussfunc, xpeak, 500, 3);
 
-      TF1 *fit = new TF1("fit", combfunc, xpeak, 700, 5);
-      TF1 *backfit = new TF1("backfit", powerfunc, xpeak, 700, 2);
-      TF1 *peakfit = new TF1("peakfit", gaussfunc, xpeak, 700, 3);
-
-      for (int i = 0; i < 71; i++) {
-        tmpbincontent[i] = h1->GetBinContent(i + 30);
-        h1->SetBinContent(i + 30, 0.);
+      for (int i = 0; i < 70; i++) {
+        tmpbincontent[i] = h1->GetBinContent(i + 25);
+        h1->SetBinContent(i + 25, 0.);
       }
 
+      backfit->SetParameter(0, 1e6);
       backfit->SetParameter(1, -2.8);
+      backfit->SetParLimits(1, -3.5, -2);
       h1->Fit("backfit", "QMRN");
       backfit->GetParameters(b_3par);
       b_3parerr[0] = backfit->GetParError(0);
       b_3parerr[1] = backfit->GetParError(1);
 
-      for (int i = 0; i < 71; i++) {
-        h1->SetBinContent(i + 30, tmpbincontent[i]);
-        Double_t iheight = tmpbincontent[i] - backfit->Eval(i + 30 + 6);
-        if (iheight > maxheight) {
-          maxheight = iheight;
-          maxi = i;
-        }
-        if (iheight < maxheight && iheight / maxheight > 0.3)
-          maxwidth = i - maxi;
+      for (int i = 0; i < 70; i++) {
+        h1->SetBinContent(i + 25, tmpbincontent[i]);
+        tmpbincontent[i] -= backfit->Eval(i + 25 + 6);
+        htmp->SetBinContent(i + 1, tmpbincontent[i]);
       }
+      maxheight = htmp->GetMaximum();
+      maxi = htmp->GetMean();
+      maxwidth = htmp->GetRMS();
 
       fit->SetParameter(0, b_3par[0]);
       fit->SetParameter(1, b_3par[1]);
       fit->SetParameter(2, maxheight);
-      fit->SetParameter(3, maxi + 30);
+      fit->SetParameter(3, maxi);
       fit->SetParameter(4, maxwidth);
       fit->SetParLimits(0, b_3par[0] - b_3parerr[0], b_3par[0] + b_3parerr[0]);
       fit->SetParLimits(1, b_3par[1] - b_3parerr[1], b_3par[1] + b_3parerr[1]);
-      // fit->SetParLimits(2,20,1000);
-      fit->SetParLimits(3, maxi + 30, maxi + 30 + maxwidth);
-      // fit->SetParLimits(4,1,100);
+      fit->SetParLimits(2, maxheight / 10, 1000);
+      fit->SetParLimits(3, maxi - 2 * maxwidth, maxi + 2 * maxwidth);
+      fit->SetParLimits(4, 1, 100);
 
       h1->SetLineColor(kBlack);
       fit->SetLineColor(kBlue);
