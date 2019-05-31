@@ -266,10 +266,22 @@ int main(int argc, char *argv[]) {
         tmpbincontent[i] = h1->GetBinContent(i + 25);
         h1->SetBinContent(i + 25, 0.);
       }
+      double_t y0 = h1->GetMaximum();
+      double_t x0 = xpeak;
+      double_t y1 = h1->GetBinContent(110);
+      double_t y2 = h1->GetBinContent(111);
+      if (y1 < 0.1 || y2 < 0.1) {
+        y1 = 1.;
+      } else {
+        y1 = (y1 + y2) / 2;
+      }
+      double_t x1 = 6 + 110;
+      double_t k = (log10(y1) - log10(y0)) / (log10(x1) - log10(x0));
+      double_t A = y0 / pow(x0, k);
 
-      backfit->SetParameter(0, 1e6);
-      backfit->SetParameter(1, -2.8);
-      backfit->SetParLimits(1, -3.5, -2);
+      backfit->SetParameter(0, A);
+      backfit->SetParameter(1, k);
+      backfit->SetParLimits(1, k - 0.4, k + 0.4);
       h1->Fit("backfit", "QMRN");
       backfit->GetParameters(b_3par);
       b_3parerr[0] = backfit->GetParError(0);
@@ -290,10 +302,10 @@ int main(int argc, char *argv[]) {
       fit->SetParameter(3, maxi);
       fit->SetParameter(4, maxwidth);
       fit->SetParLimits(0, b_3par[0] - b_3parerr[0], b_3par[0] + b_3parerr[0]);
-      fit->SetParLimits(1, b_3par[1] - b_3parerr[1], b_3par[1] + b_3parerr[1]);
-      fit->SetParLimits(2, maxheight / 10, 1000);
+      fit->SetParLimits(1, b_3par[1] - b_3parerr[1], b_3par[1] +
+      b_3parerr[1]); fit->SetParLimits(2, maxheight / 10, 2 * maxheight);
       fit->SetParLimits(3, maxi - 2 * maxwidth, maxi + 2 * maxwidth);
-      fit->SetParLimits(4, 1, 100);
+      fit->SetParLimits(4, maxwidth / 10, 10 * maxwidth);
 
       h1->SetLineColor(kBlack);
       fit->SetLineColor(kBlue);
@@ -334,6 +346,7 @@ int main(int argc, char *argv[]) {
     sprintf(buf1, "h1_%d", icell);
     delete (TH1F *)gDirectory->Get(buf1);
   }
+  delete htmp;
   f_anal->Write();
   f_anal->Close();
   return 0;

@@ -23,7 +23,7 @@ else
         case "$ans" in
         y | Y)
             echo -e "\noverwrite!"
-            rm -rf $OutDir/*
+            rm -rf $OutDir
             if [ $IfSavePNG -eq 1 ]; then
                 mkdir -p "$PicDir"
             fi
